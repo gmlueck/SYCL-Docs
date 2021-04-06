@@ -436,6 +436,7 @@ object. For the full description please refer to <<subsec:buffers>>.
     computation to other <<device,devices>>. A SYCL device compiler will parse
     the same source file and target only SYCL kernels.
 
+// TODO: Fix this
 [[specialization-constant]]specialization constant::
     A constant variable where the value is not known until compilation of
     the <<sycl-kernel-function>>.
@@ -446,6 +447,7 @@ object. For the full description please refer to <<subsec:buffers>>.
     the value prior to the compilation of a <<kernel-bundle>> and in a
     <<sycl-kernel-function>> for retrieving the value during invocation.
 
+// TODO: Remove this stale entry.
 [[string-kernel-name]]string kernel name::
     The name of a <<sycl-kernel-function>> in string form, this can be the
     name of a kernel function created via interop or a string form of a

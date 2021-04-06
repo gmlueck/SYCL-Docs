@@ -12,6 +12,8 @@ myQueue.submit([&](handler &h) {
 // Kernel defined as a functor to be invoked later
 class KernelFunctor {
   public:
+  // GMLUECK: Why don't we put the attribute in the "correct" posistion
+  // when it is not a lambda?
   void operator()(item<1> it) const [[sycl::reqd_work_group_size(16)]] {
     //[kernel code]
   };

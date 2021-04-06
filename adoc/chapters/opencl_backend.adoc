@@ -647,6 +647,9 @@ Throws an [code]#exception# with the [code]#errc::invalid# error code
    if any error is produced by the <<backend>>.
 |====
 
+// TODO: How does make_kernel_bundle() know which kernel_id's it contains?  Propose
+// that get_kernel_ids() should return an empty list.
+
 
 === Extension query
 
@@ -731,6 +734,12 @@ code will be [code]#CL_SUCCESS#.
 
 [[sec:opencl:interop-kernel-bundle]]
 === Interoperability with kernel bundles
+
+TODO: What if the application creates a kernel bundle with input state from
+  an underlying OpenCL program, and then calls OpenCL "build" on that program?
+  This would change the state of the underlying program, but the SYCL object
+  would still have state "input".  I think we need to say that operations like
+  this are invalid.
 
 In <<opencl12, OpenCL>> any kernel function that is enqueued over an nd-range
 is represented by a [code]#cl_kernel# and must be compiled and linked via a
@@ -950,6 +959,9 @@ signedness on top of what is guaranteed by ISO {cpp}. For the purpose of
 interoperability and portability, SYCL defines a set of aliases to {cpp} types
 within the [code]#sycl::opencl# namespace using the [code]#cl_#
 prefix. These aliases are described in <<table.types.aliases>>
+
+// TODO: Add a note stating that cl_long (etc.) are not necessarily the same
+// as long.
 
 
 [[table.types.aliases]]

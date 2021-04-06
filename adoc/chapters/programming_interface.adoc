@@ -2914,10 +2914,16 @@ executed by the <<sycl-runtime>> using the [code]#submit# member
 function.
 
 All member functions of the [code]#queue# class are synchronous and errors
-are handled by throwing synchronous SYCL exceptions. The [code]#submit#
+are handled by throwing synchronous SYCL exceptions.
+
+# The following sentence needs to be fixed.  The submit function doesn't
+# "schedule" and it works synchronously.
+The [code]#submit#
 member function schedules <<command-group,command groups>> asynchronously, so any errors
 in the submission of a <<command-group>> are handled by throwing synchronous
-SYCL exceptions. Any exceptions from the <<command-group>> after it has
+SYCL exceptions.
+
+Any exceptions from the <<command-group>> after it has
 been submitted are handled by passing <<async-error,asynchronous errors>> at specific times to an
 <<async-handler>>, as described in <<error-handling>>.
 
@@ -4903,6 +4909,8 @@ and then return.
 --
 
 
+# Add some clarification about the state of "hostPointer" memory
+# if set_final_data is called.
 If [code]#set_final_data()# is used to change where to write the
 data back to, then the destructor of the buffer will block if a
 write accessor on it has been created.
@@ -13720,6 +13728,9 @@ class, and the declaration must be outside of <<kernel-scope>> using static
 storage duration.  The declaration must be in either namespace scope or class
 scope.
 
+# T needs to be device copyable.
+# We can probably remove the restriction on forward-declarable given the new
+# implementation direction.
 A synopsis of this class is shown below.  The template parameter [code]#T# must
 be a forward-declarable type.
 
@@ -14701,6 +14712,9 @@ compiling or linking because it produces a new bundle in the same state as its
 inputs.  Rather, joining creates the union of all the devices images from the
 input bundles, eliminates duplicate copies of the same device image, and
 creates a new bundle from the result.
+
+// TODO: Specify behavior when the same spec constant is set in more than one
+// of the input modules.
 
 [source]
 ----
