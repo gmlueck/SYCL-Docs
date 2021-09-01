@@ -78,25 +78,24 @@ object. For the full description please refer to <<subsec:buffers>>.
     are <<input>>, <<object>> or <<executable>>.
 
 [[command]]command::
-    A request to execute work that is submitted to a <<queue>> such as the
-    invocation of a <<sycl-kernel-function>>, the invocation of a
-    <<host-task>> or an asynchronous copy.
+    A request to execute work in a <<command-group>> such as the invocation of
+    a <<sycl-kernel-function>>, the invocation of a <<host-task>> or an
+    asynchronous copy.
 
 [[command-group]]command group::
-    In SYCL, the operations required to process data on a <<device>> are
-    represented using a <<command-group-function-object>>. Each
-    <<command-group-function-object>> is given a unique <<handler>>
-    object to perform all the necessary work required to correctly process
-    data on a <<device>> using a kernel. In this way, the group of
-    commands for transferring and processing data is enqueued as a command
-    group on a <<device>> for execution. A command group is submitted
-    atomically to a SYCL queue.
+    A command group represents work that is scheduled for execution at some
+    future time along with dependency information which triggers execution of
+    that work.  The work contained by a command group, a <<command>>, executes
+    when the dependencies in the command group have been satisfied.  A command
+    group is created by submitting a <<command-group-function-object>> to a
+    <<queue>>.
 
 [[command-group-function-object]]command group function object::
-    A type which is callable with [code]#operator()# that takes a
-    reference to a <<handler>>, that defines a <<command-group>> which
-    can be submitted by a <<queue>>. The function object can be a named
-    type, lambda function or [code]#std::function#.
+    An object which is callable with [code]#operator()# that takes a
+    reference to a <<handler>>.  When a command group function object is
+    submitted to a <<queue>>, a <<command-group>> is scheduled for execution
+    at some future time.  The function object can be a named type, lambda
+    function or [code]#std::function#.
 
 [[handler]]command group handler::
     The command group handler class provides the interface for the commands
