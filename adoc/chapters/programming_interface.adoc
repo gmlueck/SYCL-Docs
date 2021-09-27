@@ -15538,6 +15538,22 @@ name which is not forward declarable ([code]#std::complex#).
 include::{code_dir}/lambdaNameExamples.cpp[lines=4..-1]
 ----
 
+When a translation unit contains a kernel lambda function that does not have an
+explicit name, the application's usage of the [code]#+__SYCL_DEVICE_ONLY__+#
+macro is restricted in that translation unit.  It is undefined behavior to use
+this macro in any way that causes the number, order, scope or type of any
+lambda declaration to be different depending on the definition of this macro.
+The following code examples illustrate two violations of this restriction:
+
+[source,,linenums]
+----
+include::{code_dir}/lambdaUnnamedExample1.cpp[lines=4..-1]
+----
+[source,,linenums]
+----
+include::{code_dir}/lambdaUnnamedExample2.cpp[lines=4..-1]
+----
+
 === [code]#is_device_copyable# type trait
 
 ....
