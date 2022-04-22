@@ -1067,6 +1067,7 @@ values:
     work-item;
   * [code]#sycl::memory_scope::device# The ordering constraint applies only
     to work-items executing on the same device as the calling work-item;
+    TODO: Should this include sub-devices also?
   * [code]#sycl::memory_scope::system# The ordering constraint applies to any
     work-item or host thread in the system that is currently permitted to
     access the memory allocation containing the referenced object, as
