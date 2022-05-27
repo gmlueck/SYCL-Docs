@@ -9958,14 +9958,13 @@ The characteristics of USM allocations are summarized in
 |                                 Another [code]#device#    | Optional  | Another [code]#device#| Optional
 |====
 
-Each USM memory allocation has an associated SYCL context, and any access to
-that memory must use the same context.  Specifically, any
-<<sycl-kernel-function>> that dereferences a pointer to a USM memory allocation
-must be submitted to a <<queue>> that was constructed with the same context
-that was used to allocate that USM memory.  The explicit memory operation
-<<command, commands>> that take USM pointers have a similar restriction.  (See
-<<subsec:explicitmemory>> for details.)  Violations of these requirements
-result in undefined behavior.
+Each USM allocation has an associated SYCL context, and any access to that
+memory must use the same context.  Specifically, any <<sycl-kernel-function>>
+that dereferences a pointer to a USM allocation must be submitted to a
+<<queue>> that was constructed with the same context that was used to allocate
+that memory.  The explicit memory operation <<command, commands>> that take USM
+pointers have a similar restriction.  (See <<subsec:explicitmemory>> for
+details.)  Violations of these requirements result in undefined behavior.
 
 [NOTE]
 ====
@@ -9984,7 +9983,7 @@ accessible to the device generally results in undefined behavior.  See
 Device allocations are used for explicitly managing device memory.
 Programmers directly allocate device memory and explicitly copy data
 between host memory and a device allocation. Device allocations are obtained
-through SYCL USM device allocation routines instead of system allocation
+through SYCL device USM allocation routines instead of system allocation
 routines like [code]#std::malloc# or {cpp} [code]#new#. Device
 allocations are not accessible on the host, but the pointer values remain
 consistent on account of Unified Addressing.  The size of device allocations
@@ -10112,7 +10111,8 @@ a@ Pointer is suitably aligned for an object of type [code]#T# or it is aligned
 SYCL defines an allocator class named [code]#usm_allocator# that satisfies the
 {cpp} named requirement [code]#Allocator#.  The [code]#AllocKind# template
 parameter can be either [code]#usm::alloc::host# or [code]#usm::alloc::shared#,
-causing the allocator to allocate either USM host or USM shared memory.
+causing the allocator to make either host USM allocations or shared USM
+allocations.
 
 [NOTE]
 ====
@@ -10195,8 +10195,8 @@ usm_allocator(const context &syclContext,
               const device &syclDevice,
               const property_list &propList = {})
 ----
-a@ Constructs a [code]#usm_allocator# instance that allocates USM memory for
-the provided context and device.
+a@ Constructs a [code]#usm_allocator# instance that allocates USM for the
+provided context and device.
 
 If [code]#AllocKind# is [code]#usm::alloc::host#, this constructor throws a
 synchronous [code]#exception# with the [code]#errc::feature_not_supported#
@@ -10223,19 +10223,16 @@ a@ Simplified constructor form where [code]#syclQueue# provides the
 
 |====
 
-SYCL also provides a number of free functions for allocating USM memory,
-similar to [code]#std::malloc#.
-
 ==== Device allocation functions
 
-The functions in <<table.usm.device.allocs>> allocate USM device memory.  On
-success, these functions return a pointer to the newly allocated memory, which
-must eventually be deallocated with [code]#sycl::free# in order to avoid a
-memory leak.  If there are not enough resources to allocate the requested
-memory, these functions return [code]#nullptr#.
+The functions in <<table.usm.device.allocs>> allocate device USM.  On success,
+these functions return a pointer to the newly allocated memory, which must
+eventually be deallocated with [code]#sycl::free# in order to avoid a memory
+leak.  If there are not enough resources to allocate the requested memory,
+these functions return [code]#nullptr#.
 
 [[table.usm.device.allocs]]
-.USM Device Memory Allocation Functions
+.Device USM Allocation Functions
 [width="100%",options="header",separator="@",cols="65%,35%"]
 |====
 @ Function @ Description
@@ -10247,14 +10244,14 @@ void* sycl::malloc_device(size_t numBytes,
                           const context& syclContext,
                           const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated memory on [code]#syclDevice# on
-success.  The allocation size is specified in bytes.  Throws a synchronous
-[code]#exception# with the [code]#errc::feature_not_supported# error code if
-the [code]#syclDevice# does not have [code]#aspect::usm_device_allocations#.
-The [code]#syclDevice# must either be contained by [code]#syclContext# or it
-must be a <<descendent-device>> of some device that is contained by that
-context, otherwise this function throws a synchronous [code]#exception# with
-the [code]#errc::invalid# error code.
+a@ Returns a pointer to the newly allocated memory, which is allocated on
+[code]#syclDevice#.  The allocation size is specified in bytes.  Throws a
+synchronous [code]#exception# with the [code]#errc::feature_not_supported#
+error code if the [code]#syclDevice# does not have
+[code]#aspect::usm_device_allocations#.  The [code]#syclDevice# must either be
+contained by [code]#syclContext# or it must be a <<descendent-device>> of some
+device that is contained by that context, otherwise this function throws a
+synchronous [code]#exception# with the [code]#errc::invalid# error code.
 
 a@
 [source]
@@ -10265,9 +10262,9 @@ T* sycl::malloc_device(size_t count,
                        const context& syclContext,
                        const property_list &propList = {})
 ----
-a@  Returns a pointer to the newly allocated memory on [code]#syclDevice# on
-success.  The allocation size is specified in number of elements of type
-[code]#T#.  Throws a synchronous [code]#exception# with the
+a@  Returns a pointer to the newly allocated memory, which is allocated on
+[code]#syclDevice#.  The allocation size is specified in number of elements of
+type [code]#T#.  Throws a synchronous [code]#exception# with the
 [code]#errc::feature_not_supported# error code if the [code]#syclDevice#
 does not have [code]#aspect::usm_device_allocations#.  The [code]#syclDevice#
 must either be contained by [code]#syclContext# or it must be a
@@ -10306,9 +10303,9 @@ sycl::aligned_alloc_device(size_t alignment,
                            const context& syclContext,
                            const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated memory on [code]#syclDevice#, where
-the memory is aligned according to [code]#alignment#.  The allocation size is
-specified in bytes.  Throws a synchronous [code]#exception# with the
+a@ Returns a pointer to the newly allocated memory, which is allocated on
+[code]#syclDevice#.  The allocation is specified in bytes and aligned according
+to [code]#alignment#.  Throws a synchronous [code]#exception# with the
 [code]#errc::feature_not_supported# error code if the [code]#syclDevice# does
 not have [code]#aspect::usm_device_allocations#.  The [code]#syclDevice# must
 either be contained by [code]#syclContext# or it must be a
@@ -10327,9 +10324,9 @@ sycl::aligned_alloc_device(size_t alignment,
                            const context& syclContext,
                            const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated memory on [code]#syclDevice#, where
-the memory is aligned according to [code]#alignment#.  The allocation size is
-specified in elements of type [code]#T#.  Throws a synchronous
+a@ Returns a pointer to the newly allocated memory, which is allocated on
+[code]#syclDevice#.  The allocation is specified in number of elements of type
+[code]#T# and aligned according to [code]#alignment#.  Throws a synchronous
 [code]#exception# with the [code]#errc::feature_not_supported# error code if
 the [code]#syclDevice# does not have [code]#aspect::usm_device_allocations#.
 The [code]#syclDevice# must either be contained by [code]#syclContext# or it
@@ -10366,14 +10363,14 @@ a@ Simplified form where [code]#syclQueue# provides the [code]#device# and
 
 ==== Host allocation functions
 
-The functions in <<table.usm.host.allocs>> allocate USM host memory.  On
-success, these functions return a pointer to the newly allocated memory, which
-must eventually be deallocated with [code]#sycl::free# in order to avoid a
-memory leak.  If there are not enough resources to allocate the requested
-memory, these functions return [code]#nullptr#.
+The functions in <<table.usm.host.allocs>> allocate host USM.  On success,
+these functions return a pointer to the newly allocated memory, which must
+eventually be deallocated with [code]#sycl::free# in order to avoid a memory
+leak.  If there are not enough resources to allocate the requested memory,
+these functions return [code]#nullptr#.
 
 [[table.usm.host.allocs]]
-.USM Host Memory Allocation Functions
+.Host USM Allocation Functions
 [width="100%",options="header",separator="@",cols="65%,35%"]
 |====
 @ Function @ Description
@@ -10384,9 +10381,9 @@ void* sycl::malloc_host(size_t numBytes,
                         const context& syclContext,
                         const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated host memory on success.  This
-allocation is specified in bytes.  Throws a synchronous [code]#exception# with
-the [code]#errc::feature_not_supported# error code if no device in
+a@ Returns a pointer to the newly allocated memory.  This allocation is
+specified in bytes.  Throws a synchronous [code]#exception# with the
+[code]#errc::feature_not_supported# error code if no device in
 [code]#syclContext# has [code]#aspect::usm_host_allocations#.
 
 a@
@@ -10397,11 +10394,10 @@ T* sycl::malloc_host(size_t count,
                      const context& syclContext,
                      const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated host memory on success.  This
-allocation is specified in number of elements of type [code]#T#.  Throws a
-synchronous [code]#exception# with the [code]#errc::feature_not_supported#
-error code if no device in [code]#syclContext# has
-[code]#aspect::usm_host_allocations#.
+a@ Returns a pointer to the newly allocated memory.  This allocation is
+specified in number of elements of type [code]#T#.  Throws a synchronous
+[code]#exception# with the [code]#errc::feature_not_supported# error code if no
+device in [code]#syclContext# has [code]#aspect::usm_host_allocations#.
 
 a@
 [source]
@@ -10431,11 +10427,11 @@ sycl::aligned_alloc_host(size_t alignment,
                          const context& syclContext,
                          const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated host memory on success.  This
-allocation is specified in bytes and aligned according to [code]#alignment#.
-Throws a synchronous [code]#exception# with the
-[code]#errc::feature_not_supported# error code if no device in
-[code]#syclContext# has [code]#aspect::usm_host_allocations#.
+a@ Returns a pointer to the newly allocated memory.  This allocation is
+specified in bytes and aligned according to [code]#alignment#.  Throws a
+synchronous [code]#exception# with the [code]#errc::feature_not_supported#
+error code if no device in [code]#syclContext# has
+[code]#aspect::usm_host_allocations#.
 
 a@
 [source]
@@ -10447,8 +10443,8 @@ sycl::aligned_alloc_host(size_t alignment,
                          const context& syclContext,
                          const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated host memory on success.  This
-allocation is specified in elements of type [code]#T# and aligned according to
+a@ Returns a pointer to the newly allocated memory.  This allocation is
+specified in elements of type [code]#T# and aligned according to
 [code]#alignment#.  Throws a synchronous [code]#exception# with the
 [code]#errc::feature_not_supported# error code if no device in
 [code]#syclContext# has [code]#aspect::usm_host_allocations#.
@@ -10480,14 +10476,14 @@ a@ Simplified form where [code]#syclQueue# provides the [code]#context#.
 
 ==== Shared allocation functions
 
-The functions in <<table.usm.shared.allocs>> allocate USM shared memory.  On
-success, these functions return a pointer to the newly allocated memory, which
-must eventually be deallocated with [code]#sycl::free# in order to avoid a
-memory leak.  If there are not enough resources to allocate the requested
-memory, these functions return [code]#nullptr#.
+The functions in <<table.usm.shared.allocs>> allocate shared USM.  On success,
+these functions return a pointer to the newly allocated memory, which must
+eventually be deallocated with [code]#sycl::free# in order to avoid a memory
+leak.  If there are not enough resources to allocate the requested memory,
+these functions return [code]#nullptr#.
 
 [[table.usm.shared.allocs]]
-.USM Shared Memory Allocation Functions
+.Shared USM Allocation Functions
 [width="100%",options="header",separator="@",cols="65%,35%"]
 |====
 @ Function @ Description
@@ -10499,8 +10495,8 @@ void* sycl::malloc_shared(size_t numBytes,
                           const context& syclContext,
                           const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated shared memory, which is allocated
-on [code]#syclDevice#.  This allocation is specified in bytes.  Throws a
+a@ Returns a pointer to the newly allocated memory, which is associated with
+[code]#syclDevice#.  This allocation is specified in bytes.  Throws a
 synchronous [code]#exception# with the [code]#errc::feature_not_supported#
 error code if the [code]#syclDevice# does not have
 [code]#aspect::usm_shared_allocations#.  The [code]#syclDevice# must either be
@@ -10517,8 +10513,8 @@ T* sycl::malloc_shared(size_t count,
                        const context& syclContext,
                        const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated shared memory, which is allocated
-on [code]#syclDevice#.  This allocation is specified in number of elements of
+a@ Returns a pointer to the newly allocated memory, which is associated with
+[code]#syclDevice#.  This allocation is specified in number of elements of
 type [code]#T#.  Throws a synchronous [code]#exception# with the
 [code]#errc::feature_not_supported# error code if the [code]#syclDevice# does
 not have [code]#aspect::usm_shared_allocations#.  The [code]#syclDevice# must
@@ -10558,8 +10554,8 @@ sycl::aligned_alloc_shared(size_t alignment,
                            const context& syclContext,
                            const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated shared memory, which is allocated
-on [code]#syclDevice#.  This allocation is specified in bytes and aligned
+a@ Returns a pointer to the newly allocated memory, which is associated with
+[code]#syclDevice#.  This allocation is specified in bytes and aligned
 according to [code]#alignment#.  Throws a synchronous [code]#exception# with
 the [code]#errc::feature_not_supported# error code if the [code]#syclDevice#
 does not have [code]#aspect::usm_shared_allocations#.  The [code]#syclDevice#
@@ -10579,8 +10575,8 @@ sycl::aligned_alloc_shared(size_t alignment,
                            const context& syclContext,
                            const property_list &propList = {})
 ----
-a@ Returns a pointer to the newly allocated shared memory, which is allocated
-on [code]#syclDevice#.  This allocation is specified in number of elements of
+a@ Returns a pointer to the newly allocated memory, which is associated with
+[code]#syclDevice#.  This allocation is specified in number of elements of
 type [code]#T# and aligned aligned according to [code]#alignment#.  Throws a
 synchronous [code]#exception# with the [code]#errc::feature_not_supported#
 error code if the [code]#syclDevice# does not have
@@ -10619,7 +10615,7 @@ a@ Simplified form where [code]#syclQueue# provides the [code]#device# and
 ==== Parameterized allocation functions
 
 The functions in <<table.usm.param.allocs>> take a [code]#kind# parameter that
-specifies the type of USM memory to allocate.  When [code]#kind# is
+specifies the type of USM to allocate.  When [code]#kind# is
 [code]#usm::alloc::device#, then the allocation device must have
 [code]#aspect::usm_device_allocations#.  When [code]#kind# is
 [code]#usm::alloc::host#, at least one device in the allocation context must
@@ -10635,7 +10631,7 @@ a memory leak.  If there are not enough resources to allocate the requested
 memory, these functions return [code]#nullptr#.
 
 [[table.usm.param.allocs]]
-.USM Parameterized Allocation Functions
+.Parameterized USM Allocation Functions
 [width="100%",options="header",separator="@",cols="65%,35%"]
 |====
 @ Function @ Description
@@ -10648,9 +10644,9 @@ void *sycl::malloc(size_t numBytes,
                    usm::alloc kind,
                    const property_list &propList = {})
 ----
-a@ Returns a pointer to a newly allocated shared memory of type [code]#kind#.
-This allocation size is specified in bytes.  The [code]#syclDevice# parameter
-is ignored if [code]#kind# is [code]#usm::alloc::host#.  If [code]#kind# is not
+a@ Returns a pointer to the newly allocated memory of type [code]#kind#.  This
+allocation size is specified in bytes.  The [code]#syclDevice# parameter is
+ignored if [code]#kind# is [code]#usm::alloc::host#.  If [code]#kind# is not
 [code]#usm::alloc::host#, [code]#syclDevice# must either be contained by
 [code]#syclContext# or it must be a <<descendent-device>> of some device that
 is contained by that context, otherwise this function throws a synchronous
@@ -10666,8 +10662,8 @@ T *sycl::malloc(size_t count,
                 usm::alloc kind,
                 const property_list &propList = {})
 ----
-a@ Returns a pointer to a newly allocated shared memory of type [code]#kind#.
-This allocation size is specified in number of elements of type [code]#T#.  The
+a@ Returns a pointer to the newly allocated memory of type [code]#kind#.  This
+allocation size is specified in number of elements of type [code]#T#.  The
 [code]#syclDevice# parameter is ignored if [code]#kind# is
 [code]#usm::alloc::host#.  If [code]#kind# is not [code]#usm::alloc::host#,
 [code]#syclDevice# must either be contained by [code]#syclContext# or it must
@@ -10708,10 +10704,10 @@ void *sycl::aligned_alloc(size_t alignment,
                           usm::alloc kind,
                           const property_list &propList = {})
 ----
-a@ Returns a pointer to a newly allocated shared memory of type [code]#kind#.
-This allocation is specified in bytes and is aligned according to
-[code]#alignment#.  The [code]#syclDevice# parameter is ignored if [code]#kind#
-is [code]#usm::alloc::host#.  If [code]#kind# is not [code]#usm::alloc::host#,
+a@ Returns a pointer to the newly allocated memory of type [code]#kind#.  This
+allocation is specified in bytes and is aligned according to [code]#alignment#.
+The [code]#syclDevice# parameter is ignored if [code]#kind# is
+[code]#usm::alloc::host#.  If [code]#kind# is not [code]#usm::alloc::host#,
 [code]#syclDevice# must either be contained by [code]#syclContext# or it must
 be a <<descendent-device>> of some device that is contained by that context,
 otherwise this function throws a synchronous [code]#exception# with the
@@ -10728,10 +10724,10 @@ T* sycl::aligned_alloc(size_t alignment,
                        usm::alloc kind,
                        const property_list &propList = {})
 ----
-a@ Returns a pointer to a newly allocated shared memory of type [code]#kind#.
-This allocation is specified in number of elements of type [code]#T# and is
-aligned according to [code]#alignment#.  The [code]#syclDevice# parameter is
-ignored if [code]#kind# is [code]#usm::alloc::host#.  If [code]#kind# is not
+a@ Returns a pointer to the newly allocated memory of type [code]#kind#.  This
+allocation is specified in number of elements of type [code]#T# and is aligned
+according to [code]#alignment#.  The [code]#syclDevice# parameter is ignored if
+[code]#kind# is [code]#usm::alloc::host#.  If [code]#kind# is not
 [code]#usm::alloc::host#, [code]#syclDevice# must either be contained by
 [code]#syclContext# or it must be a <<descendent-device>> of some device that
 is contained by that context, otherwise this function throws a synchronous
@@ -10824,13 +10820,13 @@ device get_pointer_device(const void *ptr,
                           const context &syclContext)
 ----
 a@ Returns the [code]#device# associated with the USM allocation.  If
-[code]#ptr# points within a USM device or shared allocation for the context
-[code]#syclContext#, returns the same device that was passed when allocating
-the memory.  If [code]#ptr# points within a USM host allocation for the context
-[code]#syclContext#, returns the first device in [code]#syclContext#.  Throws a
-synchronous [code]#exception# with the [code]#errc::invalid# error code if
-[code]#ptr# does not point within a valid USM allocation from
-[code]#syclContext#.
+[code]#ptr# points within a device USM allocation or a shared USM allocation
+for the context [code]#syclContext#, returns the same device that was passed
+when allocating the memory.  If [code]#ptr# points within a host USM allocation
+for the context [code]#syclContext#, returns the first device in
+[code]#syclContext#.  Throws a synchronous [code]#exception# with the
+[code]#errc::invalid# error code if [code]#ptr# does not point within a valid
+USM allocation from [code]#syclContext#.
 
 |====
 
@@ -13842,13 +13838,12 @@ a@
 void mem_advise(void* ptr, size_t numBytes, int advice)
 ----
 a@ Enqueues a command that provides information to the implementation about a
-region of USM memory starting at [code]#ptr# and extending for [code]#numBytes#
-bytes.  The [code]#ptr# must point within a USM allocation from the same
-context as the handler's queue, and the pointer must be accessible from the
-queue's device.  The values for [code]#advice# are vendor- or backend-specific,
-with the exception of the value [code]#0# which reverts the advice for
-[code]#ptr# to the default behavior.  For more detail on USM, please see
-<<sec:usm>>.
+region of USM starting at [code]#ptr# and extending for [code]#numBytes# bytes.
+The [code]#ptr# must point within a USM allocation from the same context as the
+handler's queue, and the pointer must be accessible from the queue's device.
+The values for [code]#advice# are vendor- or backend-specific, with the
+exception of the value [code]#0# which reverts the advice for [code]#ptr# to
+the default behavior.  For more detail on USM, please see <<sec:usm>>.
 
 |====
 
