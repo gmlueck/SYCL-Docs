@@ -9974,11 +9974,12 @@ There are no similar restrictions for dereferencing a USM pointer in a
 submitted to so long as the USM pointer is accessible on the host.
 ====
 
-Each type of USM memory allocation has different rules for where that memory is
-accessible.  Attempting to dereference a USM pointer in violation of these
-rules results in undefined behavior.  The explicit memory operation
-<<command, commands>> that take USM pointers have a similar restriction, and
-violating these restrictions results in undefined behavior.
+Each type of USM allocation has different rules for where that memory is
+accessible.  Attempting to dereference a USM pointer on the host or on a device
+in violation of these rules results in undefined behavior.  Passing a USM
+pointer to one of the explicit memory functions where the pointer is not
+accessible to the device generally results in undefined behavior.  See
+<<subsec:explicitmemory>> for the exact rules.
 
 Device allocations are used for explicitly managing device memory.
 Programmers directly allocate device memory and explicitly copy data
