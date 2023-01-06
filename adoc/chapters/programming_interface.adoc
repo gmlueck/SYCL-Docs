@@ -1425,6 +1425,8 @@ info::context::atomic_memory_order_capabilities
 
 The memory ordering of the context determines the behavior of atomic operations applied
 to any memory that can be concurrently accessed by multiple devices in the context.
+TODO: Should there also be a guarantee that sub-devices of devices in the context
+also have these memory orderings?
 
 a@
 [source]
@@ -1439,6 +1441,7 @@ info::context::atomic_fence_order_capabilities
 
 The memory ordering of the context determines the behavior of fence operations applied
 to any memory that can be concurrently accessed by multiple devices in the context.
+TODO: Ibid
 
 a@
 [source]
@@ -1448,6 +1451,8 @@ info::context::atomic_memory_scope_capabilities
 
     @ [.code]#std::vector<memory_scope>#
    a@ Returns the set of memory scopes supported by atomic operations on all devices in the context, which is guaranteed to include [code]#work_group#.
+TODO: Should there also be a guarantee that sub-devices of devices in the context
+also have these memory scopes?
 
 a@
 [source]
@@ -1457,6 +1462,7 @@ info::context::atomic_fence_scope_capabilities
 
     @ [.code]#std::vector<memory_scope>#
    a@ Returns the set of memory orderings supported by [code]#atomic_fence# on all devices in the context, which is guaranteed to include [code]#work_group#.
+TODO: Ibid
 
 |====
 
@@ -2775,51 +2781,110 @@ a@
 ----
 aspect::usm_device_allocations
 ----
-   a@ Indicates that the device supports explicit USM allocations as described
-      in <<sec:usm>>.
+   a@ Indicates that the device supports USM allocations of type
+      [code]#usm::alloc::device# as described in <<sec:usm>>.
 
 a@
 [source]
 ----
 aspect::usm_host_allocations
 ----
-   a@ Indicates that the device can access USM memory allocated via
-      [code]#usm::alloc::host#.  The device only
-      supports atomic modification of a host allocation if
-      [code]#aspect::usm_atomic_host_allocations# is also supported.
-      (See <<sec:usm>>.)
+   a@ Indicates that the device supports USM allocations of type
+      [code]#usm::alloc::host# as described in <<sec:usm>>.  Code running on
+      this device can access this type of memory, but this aspect does not
+      provide any guarantee that atomic operations or concurrent access is
+      supported for that memory.
 
 a@
 [source]
 ----
 aspect::usm_atomic_host_allocations
 ----
-   a@ Indicates that the device supports USM memory allocated
-      via [code]#usm::alloc::host#. The host and this device may
-      concurrently access and atomically modify host allocations. (See <<sec:usm>>.)
+   a@ Indicates that the device supports atomic operations on
+      [code]#usm::alloc::host# USM allocations among work-items running on this
+      device.  Atomic operations are also supported between work-items running
+      on this device _D1_ and some other device _D2_ if both _D1_ and _D2_ are
+      <<descendent-device, descendent devices>> of some common device.  These
+      atomic operations are supported between work-items running in the same
+      kernel invocation and between work-items running in different kernel
+      invocations.  This aspect does not provide any guarantee that atomic
+      operations are supported between a work-item on this device and a thread
+      of execution on the host.  Any device that has this aspect will also have
+      [code]#aspect::usm_host_allocations#.
 
+a@
+[source]
+----
+aspect::usm_concurrent_host_allocations
+----
+   a@ Indicates that the device supports concurrent access and atomic
+      operations on [code]#usm::alloc::host# USM allocations, as defined in
+      <<sec:usm>>.  Concurrent access and atomic operations are supported
+      between code running on this device and code running in a thread of
+      execution on the host.  Concurrent access and atomic operations are also
+      supported between code running on this device and code running on another
+      device that also has this aspect (assuming that both devices would
+      otherwise have access to that memory).  Any device that has this aspect
+      will also have [code]#aspect::usm_atomic_host_allocations#.
 
 a@
 [source]
 ----
 aspect::usm_shared_allocations
 ----
-   a@ Indicates that the device supports USM memory allocated via
-      [code]#usm::alloc::shared# on the same device. Concurrent access
-      and atomic modification of a shared allocation is only supported
-      if [code]#aspect::usm_atomic_shared_allocations# is also supported.
-      (See <<sec:usm>>.)
+   a@ Indicates that the device supports USM allocations of type
+      [code]#usm::alloc::shared# as described in <<sec:usm>>.  Code running on
+      this device can access this type of memory if the memory was allocated
+      for this device.  This aspect does not provide any guarantee that this
+      device can access USM allocated for a different device, and it does not
+      provide any guarantee that atomic operations or concurrent access is
+      supported for USM allocations.
 
 a@
 [source]
 ----
 aspect::usm_atomic_shared_allocations
 ----
-   a@ Indicates that the device supports USM memory allocated via
-      [code]#usm::alloc::shared#. The host and other devices in the same
-      context that also support this capability may concurrently access
-      and atomically modify shared allocations.  The allocation is free
-      to migrate between the host and the appropriate devices. (See <<sec:usm>>.)
+   a@ Indicates that the device supports atomic operations on
+      [code]#usm::alloc::shared# USM allocations among work-items running on
+      this device.  Atomic operations are also supported between work-items
+      running on this device _D1_ and some other device _D2_ if both _D1_ and
+      _D2_ are <<descendent-device, descendent devices>> of some common device.
+      These atomic operations are supported between work-items running in the
+      same kernel invocation and between work-items running in different kernel
+      invocations.  This aspect does not provide any guarantee that atomic
+      operations are supported between a work-item on this device and a thread
+      of execution on the host.  Any device that has this aspect will also have
+      [code]#aspect::usm_shared_allocations#.
+
+a@
+[source]
+----
+aspect::usm_cross_device_shared_allocations
+----
+   a@ Indicates that the device can access [code]#usm::alloc::shared# USM
+      allocations if the memory was allocated for a device that also has this
+      aspect and if the memory was allocated with a context that allows access
+      to this device.  This aspect does not provide any guarantee that atomic
+      operations or concurrent access is supported for USM allocations.  Any
+      device that has this aspect will also have
+      [code]#aspect::usm_shared_allocations#.
+
+a@
+[source]
+----
+aspect::usm_concurrent_shared_allocations
+----
+   a@ Indicates that the device supports concurrent access and atomic
+      operations to [code]#usm::alloc::shared# USM allocations, as defined in
+      <<sec:usm>>.  Concurrent access and atomic operations are supported
+      between code running on this device and code running in a thread of
+      execution on the host.  Concurrent access and atomic operations are also
+      supported between code running on this device and code running on another
+      device that also has this aspect (assuming that both devices would
+      otherwise have access to that memory).  Any device that has this aspect
+      will also have [code]#aspect::usm_atomic_shared_allocations# and
+      [code]#aspect::usm_cross_device_shared_allocations#.
 
 a@
 [source]
@@ -9834,24 +9899,21 @@ include::{code_dir}/usm_device.cpp[lines=4..-1]
 ----
 
 
-=== Unified addressing
+=== Stable addresses
 
-Unified Addressing guarantees that all devices will use a unified address
-space. Pointer values in the unified address space will always refer to the
-same location in memory. The unified address space encompasses the host and
-one or more devices. Note that this does not require addresses in the
-unified address space to be accessible on all devices, just that pointer
-values will be consistent.
+USM memory allows a SYCL application to share pointer-based data structures
+between the host and one or more devices because each USM memory allocation has
+a stable address for the lifetime of that allocation.  Within a given
+allocation, the same address is used to reference a given memory location,
+regardless of whether the memory is accessed from the host or from a device.
+Thus, pointer values are stable even if USM memory migrates between the host
+and the devices.
 
 
 === Kinds of unified shared memory
 
-<<usm>> is a capability that, when available, provides the ability
-to create allocations that are visible to both host and device(s).
-USM builds upon Unified Addressing to define a shared address space
-where pointer values in this space always refer to the same location
-in memory.  USM defines three types of memory allocations 
-described in <<table.USM.allocation>>.
+There are three different types of unified shared memory, as summarized in
+<<table.USM.allocation>>.
 
 [[table.USM.allocation]]
 .Type of USM allocations
@@ -9859,16 +9921,16 @@ described in <<table.USM.allocation>>.
 |====
 | USM allocation type | Description
 | [code]#host#
-    | Allocations in host memory that are accessible by a device
+    | Allocations in host memory that are accessible by one or more devices
 | [code]#device#
     | Allocations in device memory that are *not* accessible by the host
 | [code]#shared#
-    | Allocations in shared memory that are accessible by both host and
-      device
+    | Allocations in shared memory that are accessible by both the host and
+      one or more devices
 |====
 
-The following [code]#enum# is used to refer to the different types of allocations
-inside of a SYCL program:
+The following [code]#enum# is used to refer to these different types of USM
+allocations:
 
 [source,,linenums]
 ----
@@ -9887,29 +9949,33 @@ enum class alloc : /* unspecified */ {
 ----
 
 USM is an optional feature which may not be supported by all devices, and
-devices that support USM may not support all types of USM allocation. A SYCL
-application can use the [code]#device::has()# function to determine the
-level of USM support for a device. See <<table.device.aspect>> in
-<<sec:device-aspects>> for more details.
+devices that support USM may not support all types of USM allocations. A SYCL
+application can use device aspects to determine the level of USM support for a
+device as summarized in <<table.USM.allocation.accessibility>>.
 
-The characteristics of USM allocations are summarized in
-<<table.USM.allocation.characteristics>>.
-
-[[table.USM.allocation.characteristics]]
-.Characteristics of the different kinds of USM allocation
-[width="100%",options="header",cols="16%,16%,16%,16%,16%,16%"]
+[[table.USM.allocation.accessibility]]
+.Accessibility of the different kinds of USM allocation
+[width="100%",cols="21%,7%,36%,36%"]
 |====
-| Allocation Type | Initial Location | Accessible By | | Migratable To |
-.3+| [code]#device# .3+| [code]#device# | [code]#host#      | No            | [code]#host#          | No
-|                                         [code]#device#    | Yes           | [code]#device#        | N/A
-|                                 Another [code]#device#    | Optional (P2P)| Another [code]#device#| No
+.2+^.^| *Allocation Type* 3+^| *Accessible From*
+                            ^| *Host*     ^| *Allocating Device* ^| *Another Device in USM Context*
 
-.2+| [code]#host#    .2+| [code]#host#  | [code]#host#      | Yes           | [code]#host#          | N/A
-|                                     Any [code]#device#    | Yes           | [code]#device#        | No
+ | [code]#device#
+^| no
+ | if device has [code]#aspect::aspect::usm_device_allocations#
+ | no
 
-.3+| [code]#shared#  .3+| Unspecified   | [code]#host#      | Yes           | [code]#host#          | Yes
-|                                         [code]#device#    | Yes           | [code]#device#        | Yes
-|                                 Another [code]#device#    | Optional  | Another [code]#device#| Optional
+ | [code]#host#
+^| yes
+^| -
+ | If device has [code]#aspect::usm_host_allocations#
+
+ | [code]#shared#
+^| yes
+ | If device has [code]#aspect::usm_shared_allocations#
+ | If allocating device and device in context both have
+   [code]#aspect::usm_cross_device_shared_allocations#
+
 |====
 
 Each USM allocation has an associated SYCL <<context>>, and any access to that
@@ -9934,82 +10000,138 @@ pointer to one of the explicit memory functions where the pointer is not
 accessible to the device generally results in undefined behavior.  See
 <<subsec:explicitmemory>> for the exact rules.
 
-Device allocations are used for explicitly managing device memory.
-Programmers directly allocate device memory and explicitly copy data
-between host memory and a device allocation. Device allocations are obtained
-through SYCL device USM allocation routines instead of system allocation
-routines like [code]#std::malloc# or {cpp} [code]#new#. Device
-allocations are not accessible on the host, but the pointer values remain
-consistent on account of Unified Addressing.  The size of device allocations
-will be limited by the amount of memory in a device.  Support for device
-allocations on a specific device can be queried through
-[code]#aspect::usm_device_allocations#.
+==== Device USM allocations
 
-Device allocations must be explicitly copied between the host and a device.
-The member functions to copy and initialize data are found in
-<<table.members.queue>> and <<table.members.handler.copy>>, and these
-functions may be used on device allocations if a device supports
-[code]#aspect::usm_device_allocations#.
+This type of USM is allocated for a particular device, and it is only
+accessible from that device or from one of the <<descendent-device, descendent
+devices>> of that device.  Programs which access this memory from the host or
+from any other device result in undefined behavior.
 
-Host allocations allow devices to directly read and write host memory
-inside of a kernel.  This can be useful for several reasons, such as when the
-overhead of moving a small amount of data is not worth paying over the cost of a
-remote access or when the size of a data set exceeds the size of a device's memory.
-Host allocations must also be obtained using SYCL routines instead
-of system allocation routines. While a device may remotely read and
-write a host allocation, the allocation does not migrate to the device -
-it remains in host memory.  Users should take care to properly synchronize
-access to host allocations between host execution and kernels. The total
-size of host allocations will be limited by the amount of pinnable-memory
-on the host on most systems. Support for host allocations on a specific
-device can be queried through [code]#aspect::usm_host_allocations#.
-Support for atomic modification of host allocations
-on a specific device can be queried through
-[code]#aspect::usm_atomic_host_allocations#.
+USM allocations of this type have a unique address within a context, but their
+address is not necessarily unique across the entire SYCL application.  To
+illustrate, consider a device USM allocation _A_ and some other USM allocation
+(of any  type) _B_, where both allocations share the same context.  Assuming
+that both allocations are live at the same time (i.e. neither has been freed),
+the addresses of _A_ and _B_ are guaranteed to be different because they share
+the same context.  However, the address of _A_ is not necessarily different
+from other USM allocations in other contexts, and the address of _A_ is not
+necessarily different from the address of other objects in host code.
 
-Shared allocations implicitly share data between the host
-and devices. Data may move to where it is being used without the programmer
-explicitly informing the runtime.  It is up to the runtime and backends
-to make sure that a shared allocation is available where it is used.
-Shared allocations must also be obtained using SYCL allocation routines
-instead of the system allocator.  The maximum size of a shared allocation
-on a specific device, and the total size of all shared allocations in a
-context, are implementation-defined.
-Support for shared allocations on a
-specific device can be queried through [code]#aspect::usm_shared_allocations#.
+Device USM allocations may be concurrently accessed and atomically modified by
+work-items that run on the device where that memory was allocated or on any of
+its <<descendent-device, descendent devices>>.  Atomic operations are supported
+between work-items running in the same kernel invocation and between work-items
+that run in different kernel invocations.
 
-Not all devices may support concurrent access of a shared allocation
-with the host.  If a device does not support this,
-host execution and device code must take turns accessing the allocation, so
-the host must not access a shared allocation while a kernel is executing.
-Host access to a shared allocation which is also accessed
-by an executing kernel on a device that does not support
-concurrent access results in undefined behavior.  If a device does
-support concurrent access, both the host and and the device may atomically
-modify the same data inside an allocation. Allocations, or pieces of allocations,
-are now free to migrate to different devices in the same context
-that also support this capability.  Additionally, many devices that support
-concurrent access may support a working set of shared allocations
-larger than device memory.  
-Users may query whether a device supports concurrent access with atomic
-modification of shared allocations through the aspect
-[code]#aspect::usm_atomic_shared_allocations#.
-See <<table.device.aspect>> in <<sec:device-aspects>> for more details.
+==== Host USM allocations
 
-Performance hints for shared allocations may be specified by the user
-by enqueueing [code]#prefetch# operations on a device.  These operations
-inform the SYCL runtime that the specified shared allocation is
-likely to be accessed on the device in the future, and that it is free
-to migrate the allocation to the device. 
-More about [code]#prefetch# is found in <<table.members.queue>> and
-<<table.members.handler.copy>>.  If a device supports concurrent access to
-shared allocations, then [code]#prefetch# operations may be overlapped
-with kernel execution.
+This type of USM is allocated for a context, not for a specific device.
+Therefore, any device in that context which has the
+[code]#aspect::usm_host_allocations# aspect can access this memory.  In
+addition, any <<descendent-device>> of a device in that context can access
+this memory if it has that aspect.  This memory is also accessible on the host.
+Programs which access this memory from any other device result in undefined
+behavior.
 
-Additionally, users may use the [code]#mem_advise# member function to annotate
-shared allocations with [code]#advice#.  Valid [code]#advice# is defined by the
-device and its associated backend.  See <<table.members.queue>> and
-<<table.members.handler.copy>> for more information.
+Conceptually, this type of USM resides on the host, so applications should
+expect that accesses from device code may have lower performance.
+
+Host USM allocations have a globally unique address within a SYCL application.
+To illustrate, consider two different host USM allocations that are both live
+at the same time (i.e. neither has been freed yet).  The addresses of these
+allocations are guaranteed to be different from one another and also guaranteed
+to be different from the address of any other object in host code which is live
+at the same time.  In addition, the address of a host USM allocation is
+guaranteed to be different from the address of any shared USM allocation
+(assuming both allocations are live at the same time).
+
+There are different levels of support that a device may have when accessing
+host USM allocations.  The following aspects (defined in
+<<sec:device-aspects>>) indicate the level of support:
+
+* [code]#aspect::usm_host_allocations#
+* [code]#aspect::usm_atomic_host_allocations#
+* [code]#aspect::usm_concurrent_host_allocations#
+
+Device code that accesses a host USM allocation in a way that does not
+correspond to the device's aspects results in undefined behavior.
+
+A device supports "concurrent access" to a host USM allocation if it has the
+[code]#aspect::usm_concurrent_host_allocations# aspect.  When a device does not
+have this aspect, it may only access that allocation when it has exclusive
+ownership of the entire allocation range.  To formally specify this
+restriction, consider some <<command>> _C1_ submitted to device _D1_ which
+accesses a host USM memory allocation _A_.  In order to avoid "concurrent
+access" to _A_, the application must abide by both of the following
+restrictions:
+
+* Host code must not access any location in _A_ while _C1_ could potentially
+  execute.  Thus, the host must not access _A_ after the point at which
+  requisites for _C1_ have been satisfied and before the point at which _C1_
+  completes execution.
+
+* Some other <<command>> _C2_ submitted to device _D2_ that also accesses _A_
+  must not potentially execute at the same time as _C1_ unless either _D1_ and
+  _D2_ are the same device or _D1_ and _D2_ are both
+  <<descendent-device, descendent devices>> of some common device.
+
+==== Shared USM allocations
+
+This type of USM is allocated for a specific device, but there is also an
+associated context.  Shared USM allocations are accessible on the host and on
+the device for which it was allocated.  The memory is also accessible on a
+<<descendent-device>> of the allocating device if that device also has the
+[code]#aspect::usm_shared_allocations# aspect.  Another device _D1_ may access
+shared USM allocated for device _D2_ if both _D1_ and _D2_ have the aspect
+[code]#aspect::usm_shared_cross_device_allocations# and if _D1_ is either in
+the associated context or if _D1_ is a <<descendent-device>> of some device in
+that context.  Programs which access this memory from any other device result
+in undefined behavior.
+
+Conceptually, this type of memory migrates between the host and the devices
+which access it, so applications should expect that accesses from either
+location have roughly the same performance.
+
+Shared USM allocations have a globally unique address within a SYCL application
+in the same way that host USM allocations have a globally unique address.
+
+There are different levels of support that a device may have when accessing
+shared USM allocations.  The following aspects (defined in
+<<sec:device-aspects>>) indicate the level of support:
+
+* [code]#aspect::usm_shared_allocations#
+* [code]#aspect::usm_atomic_shared_allocations#
+* [code]#aspect::usm_cross_device_shared_allocations#
+* [code]#aspect::usm_concurrent_shared_allocations#
+
+Device code that accesses a shared USM allocation in a way that does not
+correspond to the device's aspects results in undefined behavior.
+
+A device supports "concurrent access" to a shared USM allocation if it has
+the [code]#aspect::usm_concurrent_shared_allocations# aspect.  When a device
+does not have this aspect, it may only access that allocation when it has
+exclusive ownership of the entire allocation range.  The formal definition of
+"concurrent access" is the same as the definition presented above for host USM
+allocations.
+
+Applications may provide performance hints to the implementation about where a
+shared USM region will be accessed in the future by submitting [code]#prefetch#
+<<command, commands>> to the device.  These commands inform the implementation
+that a shared USM region is likely to be accessed on the device in the future,
+which allows the implementation to migrate the data appropriately.  See
+<<subsec:explicitmemory>> and <<sec:queue-shortcuts>> for more information
+about the [code]#prefetch# command.
+
+In addition, applications may submit [code]#mem_advise# commands to the device
+to provide vendor-specific or backend-specific information.  The <<core-spec>>
+does not define any values for the [code]#advice# codes, but these may be
+defined by vendor extensions or backend interoperation specifications.
+
+Both [code]#prefetch# and [code]#mem_advise# <<command, commands>> act like
+memory accesses when considering the definition of "concurrent access"
+presented above.
+
+==== System USM allocations
 
 In the most capable systems, users do not need to use SYCL USM allocation functions
 to create shared allocations. The system allocator ([code]#malloc#/[code]#new#) may

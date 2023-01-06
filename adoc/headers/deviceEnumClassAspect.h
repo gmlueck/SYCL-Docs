@@ -20,8 +20,11 @@ enum class aspect : /* unspecified */ {
   usm_device_allocations,
   usm_host_allocations,
   usm_atomic_host_allocations,
+  usm_concurrent_host_allocations,
   usm_shared_allocations,
   usm_atomic_shared_allocations,
+  usm_cross_device_shared_allocations,
+  usm_concurrent_shared_allocations,
   usm_system_allocations
 };
 
