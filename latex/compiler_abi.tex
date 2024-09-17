@@ -450,13 +450,13 @@ The default behavior in SYCL applications is that all the definitions and
 declarations of the functions and methods are available to the SYCL compiler,
 in the same translation unit. When this is not the case, all the symbols that
 need to be exported to a SYCL library or from a C++ library to a SYCL
-application need to be defined using the macro: \texttt{SYCL_EXTERNAL}.
+application need to be defined using the macro \texttt{SYCL_EXTERNAL}.
 
 The \texttt{SYCL_EXTERNAL} macro will only be defined if the implementation
 supports offline linking. The macro is implementation-defined, but the following
 restrictions apply:
 \begin{itemize}
-\item \texttt{SYCL_EXTERNAL} can only be used on functions;
+\item \texttt{SYCL_EXTERNAL} can only be used on non-member functions;
 \item the function cannot use raw pointers as parameter or return types.
   Explicit pointer classes must be used instead;
 \item externally defined functions cannot call a

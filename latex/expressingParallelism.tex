@@ -2208,9 +2208,13 @@ kernel arguments.
 
 A kernel can be defined as a named function object type. These function objects
 provide the same functionality as any C++ function object, with the
-restriction that they need to follow C++11 standard layout rules.
+restriction that they need to follow C++11 standard layout rules and that the
+\codeinline{operator()} function must be defined in the same translation unit as the
+host code that invokes it. (For example, if a kernel is invoked via
+\codeinline{parallel_for}, the definition of \codeinline{operator()} must be in the
+same translation unit as the call to \codeinline{parallel_for}.)
 The kernel function can be templated via templating the kernel
-function object type. The \tf{operator()} function may take different
+function object type. The \codeinline{operator()} function may take different
 parameters depending on the data accesses defined for the
 specific kernel. For details on restrictions for kernel naming,
 please refer to~\ref{sec:naming.kernels}.
