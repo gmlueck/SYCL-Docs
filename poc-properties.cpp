@@ -228,15 +228,16 @@ class properties {
 
   template<typename PropertyKey>
   requires(is_property_key_v<PropertyKey>)
-  static constexpr bool has_property() {
+  constexpr bool has_property() {
     // Each property in Properties has a __detail_key_t type alias.  To see if
     // PropertyKey is in the list, we check if it is the same as any __detail_key_t.
     return (std::is_same_v<PropertyKey, typename Properties::__detail_key_t> || ...);
   }
 
   template<typename PropertyKey>
-  requires(is_property_key_compile_time_v<PropertyKey> && has_property<PropertyKey>())
-  static constexpr auto get_property() {
+  requires(is_property_key_compile_time_v<PropertyKey> &&
+           (std::is_same_v<PropertyKey, typename Properties::__detail_key_t> || ...))
+  constexpr auto get_property() {
     // Search Properties to find the property that corresponds to
     // PropertyKey.  Since this is a compile-time property, we can default
     // construct it at compile-time.
@@ -245,7 +246,8 @@ class properties {
   }
 
   template<typename PropertyKey>
-  requires(!is_property_key_compile_time_v<PropertyKey> && has_property<PropertyKey>())
+  requires(!is_property_key_compile_time_v<PropertyKey> &&
+           (std::is_same_v<PropertyKey, typename Properties::__detail_key_t> || ...))
   constexpr auto get_property() {
     // Search Properties to find the property that corresponds to
     // PropertyKey.  Return the runtime value stored in `stored_properties`.
@@ -320,22 +322,26 @@ struct annotated_ptr_properties;
 // annotated_ptr.
 template <typename T, typename Properties = empty_properties_t>
 class annotated_ptr {
+ private:
+  Properties props;
+
  public:
   annotated_ptr(T* p, const Properties& props = {})
   requires(is_property_for_v<Properties, annotated_ptr_properties> ||
            is_property_list_for_v<Properties, annotated_ptr_properties>)
+  : props(props)
   {}
 
   template<typename PropertyKey>
   requires(is_property_key_for_v<PropertyKey, annotated_ptr_properties>)
-  static constexpr bool has_property() {
-    return Properties::template has_property<PropertyKey>();
+  constexpr bool has_property() {
+    return props.template has_property<PropertyKey>();
   }
 
   template<typename PropertyKey>
   requires(is_property_key_for_v<PropertyKey, annotated_ptr_properties>)
-  static constexpr auto get_property() {
-    return Properties::template get_property<PropertyKey>();
+  constexpr auto get_property() {
+    return props.template get_property<PropertyKey>();
   }
 };
 
