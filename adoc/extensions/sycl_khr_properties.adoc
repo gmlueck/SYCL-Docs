@@ -1,3 +1,5 @@
+:dpcpp: pass:[DPC++]
+
 [[sec:khr-properties]]
 = sycl_khr_properties
 
@@ -54,8 +56,8 @@ below in the examples in <<sec:khr-properties-examples-for-implementors>>.
 A property can contain zero or more values.
 Each value can either be a compile-time constant or a runtime-supplied value.
 Any single property normally contains only compile-time constant values or
-contains only runtime-supplied values.
-However, it is possible for a property to contain a mixture of both value types.
+contains only runtime-supplied values, however, it is possible for a property to
+contain a mixture of both value types.
 
 A property with one or more runtime-supplied values is defined as a class with
 constructors that set the property's values and public member variables that
@@ -222,9 +224,10 @@ This extension adds the following new class, which holds a list of properties.
 ----
 namespace sycl::khr {
 
-template <typename... Properties>
+template <typename... EncodedProperties>
 class properties {
  public:
+  template<typename... Properties>
   properties(Properties... props);
 
   template <typename PropertyKey>
@@ -245,11 +248,20 @@ using empty_properties_t = decltype(properties{});
 The [code]#properties# class is trivially copyable unless it contains a property
 with a runtime-provided value that is not trivially copyable.
 
+{note}Implementations are expected to have a deduction guide that deduces
+[code]#EncodedProperties# from the constructor's [code]#Properties# pack.
+This deduction guide could trivially deduce [code]#EncodedProperties# as exactly
+the same pack as [code]#Properties#.
+However, in the future, this KHR extension might be extended in a way that
+requires a more complex deduction.
+{endnote}
+
 '''
 
 .[apititle]#Constructor#
 [source,role=synopsis,id=api:khr-properties-ctor]
 ----
+template<typename... Properties>
 properties(Properties... props);
 ----
 
@@ -473,7 +485,7 @@ When [code]#T# is the empty properties list, this trait inherits from
 TODO
 
 [[sec:khr-properties-queue-additions]]
-== Additions to the queue class
+== Additions and modifications to the queue class
 
 [[sec:khr-properties-queue-constructors]]
 === New queue constructors
@@ -529,6 +541,10 @@ class queue {
   explicit queue(const context& syclContext, const device& syclDevice,
                  const async_handler& asyncHandler,
                  PropertyOrList props = {});
+
+  bool is_in_order() const;
+
+  bool khr_is_profiling_enabled() const;
 
   // ...
 };
@@ -727,6 +743,34 @@ _Effects:_ The same effect as [code]#queue(syclContext, syclDevice,
 asyncHandler, propList)# except that the properties are specified by
 [code]#props#.
 
+[[sec:khr-properties-queue-member-funcs]]
+=== New and modified queue member functions
+
+This extension adds a new member function and modifies an existing one.
+
+'''
+
+.[apititle]#queue::is_in_order#
+[source,role=synopsis,id=api:khr-properties-queue-is-in-order]
+----
+bool is_in_order() const;
+----
+
+_Returns:_ [code]#true# only if this queue was constructed as an in-order queue.
+
+'''
+
+.[apidef]#queue::khr_is_profiling_enabled#
+[source,role=synopsis,id=api:khr-properties-queue-is-in-order]
+----
+bool khr_is_profiling_enabled() const;
+----
+
+_Returns:_ [code]#true# only if this queue was constructed with profiling
+enabled.
+
+'''
+
 [[sec:khr-properties-queue-properties]]
 === New queue properties
 
@@ -761,6 +805,8 @@ The following traits inherit from [code]#std::true#:
 * [code]#is_property_for<enable_profiling, queue>#
 * [code]#is_property_key_for<enable_profiling, queue>#
 
+The [code]#enable_profiling# property is trivially copyable.
+
 '''
 
 .[apidef]#khr::in_order#
@@ -788,6 +834,8 @@ The following traits inherit from [code]#std::true#:
 * [code]#is_property_key<in_order>#
 * [code]#is_property_for<in_order, queue>#
 * [code]#is_property_key_for<in_order, queue>#
+
+The [code]#in_order# property is trivially copyable.
 
 == Additions to the buffer and image classes
 
@@ -907,6 +955,37 @@ inline constexpr __unspecified_type__<Value> prop;
 }
 ----
 
+[[sec:khr-properties-examples-compile-time-enumeration]]
+=== Compile-time properties with an enumeration
+
+When a property has a single compile-time constant value that is a small
+enumeration, it is recommended to define a property variable for each of the
+enumerators.
+
+[source,,linenums]
+----
+namespace sycl::khr {
+
+enum class access_type {read, write};
+
+template<access_type Access>
+struct __unspecified_type__ {
+  static constexpr access_type value = Access;
+};
+
+// Define a property variable for each enumerator to reduce verbosity in
+// application code.
+inline constexpr __unspecified_type__<access_type::read> access_read;
+inline constexpr __unspecified_type__<access_type::write> access_write;
+
+// There should still be a variable template to enable applications that set
+// the value via metaprogramming.
+template<access_type Access>
+inline constexpr __unspecified_type__<Access> access;
+
+}
+----
+
 [[sec:khr-properties-examples-for-applications]]
 == Examples for applications
 
@@ -914,6 +993,57 @@ TODO
 
 [[sec:khr-properties-issues]]
 == Issues
+
+* The properties defined and illustrated in this extension are all in the
+  [code]#sycl::khr# namespace rather than some nested namespace like
+  [code]#sycl::khr::properties#.
+  If this KHR is adopted into the core spec, properties will be defined
+  directly in [code]#sycl#.
+  This was intentional in order to reduce verbosity in applications that use
+  the extensions.
+  Is this a good idea, or will we end up polluting the top-level SYCL namespace
+  with lots of properties?
+
+* The [code]#properties# constructor has a _Mandates_ that no two properties in
+  the list have the same key.
+  Does it make sense for this to be a _Mandates_ instead of a _Constraint_?
+  I think the error message will be better with a _Mandates_, but you could make
+  that same argument for other cases where we decided to use _Constraints_
+  anyways.
+
+* Should we define [code]#operator==# and [code]#operator!=# for every property?
+  The {dpcpp} extension has this, but I left it out of this KHR because they
+  didn't seem very useful to me.
+
+* Should we define [code]#operator==# and [code]#operator!=# for the
+  [code]#properties# list?
+  This would require metaprogramming to deduce [code]#EncodedProperties# as the
+  sorted list of [code]#Properties#, otherwise two [code]#properties# lists
+  constructed from the same set of properties would have different types if the
+  properties were specified in a different order.
+  The {dpcpp} extension has this, but I left it out of this KHR because the
+  comparison operators didn't seem that useful, and I didn't think it was worth
+  the extra complexity required to sort the properties.
+  Sorting the properties (via metaprogramming) would also slow down compilation
+  (because the properties would be sorted at compilation time), and I didn't
+  want to impact compilation time by adding this sorting requirement.
+  However, I defined the [code]#properties# constructor in such a way that we
+  could add this sorting as a later revision of this KHR.
+
+* Can we guarantee that [code]#properties# is trivially copyable unless it
+  contains a runtime property that is not trivially copyable?
+  The POC uses [code]#std::tuple# to implement [code]#properties#, and
+  [code]#std::tuple# is not trivially copyable.
+  As a result the POC version of [code]#properties# is not trivially copyable.
+  This seems like it should be fixable, though, because the {dpcpp} version
+  **is** trivially copyable.
+
+* This KHR already defines the trait [code]#is_property_list_for#, but should
+  it also define the trait [code]#is_property_list#?
+  It turns out that none of the APIs in this KHR need [code]#is_property_list#
+  to implement any of their constraints, but maybe this trait would be useful
+  to users who want to create a utility function that takes a generic properties
+  list?
 
 * [code]#unsampled_image# and [code]#sampled_image# have a [code]#property_list#
   parameter for [code]#get_access# and [code]#get_host_access#, but

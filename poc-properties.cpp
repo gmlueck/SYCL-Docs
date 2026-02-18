@@ -195,22 +195,29 @@ inline constexpr bool is_property_for_v = is_property_for<T, Class>::value;
 
 // A list of properties
 //
-// Properties are the types of all the properties in the list.  This
+// EncodedProperties are the types of all the properties in the list.  This
 // includes both runtime and compile-time properties.
-template<typename... Properties>
+//
+// In this implementation, EncodedProperties is the same as the Properties pack
+// that is passed to the constructor.  In the future, though, EncodedProperties
+// could be a sorted list of the Properties, which would allow us to compare two
+// properties lists for equality.
+template<typename... EncodedProperties>
 class properties {
  private:
   // A tuple which contains only those properties that have at least one value
   // defined at runtime.
-  using stored_runtime_properties_t = detail::filter_runtime_properties_t<Properties...>;
+  using stored_runtime_properties_t =
+    detail::filter_runtime_properties_t<EncodedProperties...>;
   stored_runtime_properties_t stored_properties;
 
   // TODO: There should be a static_assert here that diagnoses an error if the
-  // Properties pack contains properties with duplicate keys.
+  // EncodedProperties pack contains properties with duplicate keys.
 
  public:
-  properties(Properties... props)
+  template<typename... Properties>
   requires(is_property_v<Properties> && ...)
+  properties(Properties... props)
   :
   stored_properties{
     // Find the subset of properties in `props` that have runtime values and
@@ -229,30 +236,33 @@ class properties {
   template<typename PropertyKey>
   requires(is_property_key_v<PropertyKey>)
   static constexpr bool has_property() {
-    // Each property in Properties has a __detail_key_t type alias.  To see if
+    // Each property in EncodedProperties has a __detail_key_t type alias.  To see if
     // PropertyKey is in the list, we check if it is the same as any __detail_key_t.
-    return (std::is_same_v<PropertyKey, typename Properties::__detail_key_t> || ...);
+    return (std::is_same_v<PropertyKey, typename EncodedProperties::__detail_key_t> || ...);
   }
 
   template<typename PropertyKey>
   requires(is_property_key_compile_time_v<PropertyKey> && has_property<PropertyKey>())
   static constexpr auto get_property() {
-    // Search Properties to find the property that corresponds to
+    // Search EncodedProperties to find the property that corresponds to
     // PropertyKey.  Since this is a compile-time property, we can default
     // construct it at compile-time.
-    using Property = detail::find_property<PropertyKey, Properties...>::type;
+    using Property = detail::find_property<PropertyKey, EncodedProperties...>::type;
     return Property{};
   }
 
   template<typename PropertyKey>
   requires(!is_property_key_compile_time_v<PropertyKey> && has_property<PropertyKey>())
   constexpr auto get_property() {
-    // Search Properties to find the property that corresponds to
+    // Search EncodedProperties to find the property that corresponds to
     // PropertyKey.  Return the runtime value stored in `stored_properties`.
-    using Property = detail::find_property<PropertyKey, Properties...>::type;
+    using Property = detail::find_property<PropertyKey, EncodedProperties...>::type;
     return get<Property>(stored_properties);
   }
 };
+
+template<typename... Properties>
+properties(Properties...) -> properties<Properties...>;
 
 using empty_properties_t = decltype(properties{});
 
@@ -347,7 +357,7 @@ annotated_ptr(T*, Properties) -> annotated_ptr<T, Properties>;
 
 template<typename T, typename Property>
 requires(is_property_for_v<Property, annotated_ptr_properties>)
-annotated_ptr(T*, Property) -> annotated_ptr<T, properties<Property>>;
+annotated_ptr(T*, Property) -> annotated_ptr<T, decltype(properties{Property{}})>;
 
 
 // Example compile-time property with one value.
@@ -459,6 +469,32 @@ int main() {
     };
     static_assert(sizeof(p) == sizeof(int));
   }
+
+  // Check that properties and properties lists are trivially copyable.
+  {
+    static_assert(std::is_trivially_copyable_v<decltype(sycl::khr::enable_profiling{true})>);
+    static_assert(std::is_trivially_copyable_v<decltype(sycl::khr::twoarg{1, 2})>);
+    static_assert(std::is_trivially_copyable_v<decltype(sycl::khr::alignment<16>)>);
+    static_assert(std::is_trivially_copyable_v<decltype(sycl::khr::alignment_type<int>)>);
+    static_assert(std::is_trivially_copyable_v<decltype(sycl::khr::threearg<1, false, 2>)>);
+    static_assert(std::is_trivially_copyable_v<decltype(sycl::khr::hybrid<1>{2})>);
+  }
+#if 0
+  // Disabled because the "properties" type is not trivially copyable in this
+  // POC due to the use of "std::tuple".
+  //
+  // TODO: Can this POC be made to be trivially copyable when all of the
+  // properties in the list are trivially copyable?  The DPC++ implementation
+  // seems to do this, so I think it should be possible.
+  {
+    sycl::khr::properties p{
+      sycl::khr::alignment_type<float>,
+      sycl::khr::enable_profiling{true},
+      sycl::khr::threearg<1, false, 2>
+    };
+    static_assert(std::is_trivially_copyable_v<decltype(p)>);
+  }
+#endif
 
   // Check has_property and get_property on a compile-time property list.
   {
