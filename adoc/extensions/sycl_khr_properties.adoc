@@ -761,7 +761,7 @@ _Returns:_ [code]#true# only if this queue was constructed as an in-order queue.
 '''
 
 .[apidef]#queue::khr_is_profiling_enabled#
-[source,role=synopsis,id=api:khr-properties-queue-is-in-order]
+[source,role=synopsis,id=api:khr-properties-queue-is-profiling-enabled]
 ----
 bool khr_is_profiling_enabled() const;
 ----
@@ -997,10 +997,10 @@ TODO
 * The properties defined and illustrated in this extension are all in the
   [code]#sycl::khr# namespace rather than some nested namespace like
   [code]#sycl::khr::properties#.
-  If this KHR is adopted into the core spec, properties will be defined
-  directly in [code]#sycl#.
-  This was intentional in order to reduce verbosity in applications that use
-  the extensions.
+  If this KHR is adopted into the core spec, properties will be defined directly
+  in [code]#sycl#.
+  This was intentional in order to reduce verbosity in applications that use the
+  extensions.
   Is this a good idea, or will we end up polluting the top-level SYCL namespace
   with lots of properties?
 
@@ -1038,8 +1038,8 @@ TODO
   This seems like it should be fixable, though, because the {dpcpp} version
   **is** trivially copyable.
 
-* This KHR already defines the trait [code]#is_property_list_for#, but should
-  it also define the trait [code]#is_property_list#?
+* This KHR already defines the trait [code]#is_property_list_for#, but should it
+  also define the trait [code]#is_property_list#?
   It turns out that none of the APIs in this KHR need [code]#is_property_list#
   to implement any of their constraints, but maybe this trait would be useful
   to users who want to create a utility function that takes a generic properties
