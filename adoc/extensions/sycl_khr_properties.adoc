@@ -95,7 +95,7 @@ struct __unspecified_type__ {
 };
 
 template<int Value>
-inline constexpr __unspecified_type__ prop2;
+inline constexpr __unspecified_type__<Value> prop2;
 
 }
 
@@ -193,7 +193,7 @@ struct __unspecified_type__ {
 };
 
 template<int Value>
-inline constexpr __unspecified_type__ prop2;
+inline constexpr __unspecified_type__<Value> prop2;
 
 // Property key defined by the implementation.
 struct prop2_key{};
@@ -231,7 +231,7 @@ class properties {
   static constexpr bool has_property();
 
   template <typename PropertyKey>
-  static constexpr auto get_property()
+  static constexpr auto get_property();
 
   template <typename PropertyKey>
   constexpr auto get_property();
@@ -877,7 +877,7 @@ struct __unspecified_type__ {
 };
 
 template<int Value>
-inline constexpr __unspecified_type__ prop2;
+inline constexpr __unspecified_type__<Value> prop2;
 
 }
 ----
@@ -902,7 +902,7 @@ struct __unspecified_type__ {
 };
 
 template<typename Value>
-inline constexpr __unspecified_type__ prop;
+inline constexpr __unspecified_type__<Value> prop;
 
 }
 ----

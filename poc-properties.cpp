@@ -27,7 +27,7 @@ namespace detail {
 //  hybrid_property_base
 //  hybrid_property_key_base
 //    Use these for a property where some values are defined at runtime and some
-//    are defined at runtime.
+//    are defined at compile-time.
 struct runtime_property_base{};
 struct constant_property_base{};
 struct constant_property_key_base{};
