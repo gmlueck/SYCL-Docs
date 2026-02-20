@@ -986,10 +986,83 @@ inline constexpr __unspecified_type__<Access> access;
 }
 ----
 
-[[sec:khr-properties-examples-for-applications]]
-== Examples for applications
+[[sec:khr-properties-examples-compile-time-enumeration]]
+=== Boolean properties
 
-TODO
+When a property is a boolean flag, it is recommended to define the property with
+a boolean value, rather than relying on the existence of the property to convey
+the flag.
+This recommendation applies to both properties with runtime-supplied values and
+to properties with compile-time constant values.
+For example, two hypothetical boolean properties could be defined like this:
+
+[source,,linenums]
+----
+namespace sycl::khr {
+
+struct enable_thing1 {
+  enable_thing1(bool enable) : value(enable) {}
+  bool value;
+};
+
+template<bool Enable>
+struct __unspecified_type__ {
+  static constexpr bool value = Enable;
+};
+
+template<bool Enable>
+inline constexpr __unspecified_type__<Enable> enable_thing2;
+
+}
+----
+
+An application can then select whether the properties are on or off using code
+like this:
+
+[source,,linenums]
+----
+bool thing1 = /* determine at runtime if thing1 is enabled */;
+
+#ifdef THING2
+constexpr bool thing2 = true;
+#else
+constexpr bool thing2 = false;
+#endif
+
+sycl::khr::properties props{
+  sycl::khr::enable_thing1{thing1},
+  sycl::khr::enable_thing2<thing2>,
+};
+// use "props"
+----
+
+If we did not use this pattern, an application would have to define two
+different [code]#props# variables like this because the type of [code]#props#
+is different depending on whether it contains the [code]#enable_thing1#
+property.
+
+[source,,linenums]
+----
+bool thing1 = /* determine at runtime if thing1 is enabled */;
+
+if (thing1) {
+  sycl::khr::properties props{
+    sycl::khr::enable_thing1,
+#ifdef THING2
+    sycl::khr::enable_thing2
+#endif
+  };
+  // use "props"
+}
+else {
+  sycl::khr::properties props{
+#ifdef THING2
+    sycl::khr::enable_thing2
+#endif
+  };
+  // use "props"
+}
+----
 
 [[sec:khr-properties-issues]]
 == Issues
