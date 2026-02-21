@@ -986,7 +986,7 @@ inline constexpr __unspecified_type__<Access> access;
 }
 ----
 
-[[sec:khr-properties-examples-compile-time-enumeration]]
+[[sec:khr-properties-examples-boolean]]
 === Boolean properties
 
 When a property is a boolean flag, it is recommended to define the property with
