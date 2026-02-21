@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2025 The Khronos Group, Inc.
+// Copyright (c) 2011-2026 The Khronos Group, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
 namespace sycl {
@@ -9,6 +9,8 @@ class sub_group {
   using linear_id_type = std::uint32_t;
   static constexpr int dimensions = 1;
   static constexpr memory_scope fence_scope = memory_scope::sub_group;
+
+  sub_group() = delete;
 
   /* -- common interface members -- */
 

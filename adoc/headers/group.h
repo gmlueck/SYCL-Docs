@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2025 The Khronos Group, Inc.
+// Copyright (c) 2011-2026 The Khronos Group, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
 namespace sycl {
@@ -9,6 +9,8 @@ template <int Dimensions = 1> class group {
   using linear_id_type = std::size_t;
   static constexpr int dimensions = Dimensions;
   static constexpr memory_scope fence_scope = memory_scope::work_group;
+
+  group() = delete;
 
   /* -- common interface members -- */
 
