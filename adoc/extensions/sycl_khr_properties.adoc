@@ -1037,9 +1037,8 @@ sycl::khr::properties props{
 ----
 
 If we did not use this pattern, an application would have to define two
-different [code]#props# variables like this because the type of [code]#props#
-is different depending on whether it contains the [code]#enable_thing1#
-property.
+different [code]#props# variables like this because the type of [code]#props# is
+different depending on whether it contains the [code]#enable_thing1# property.
 
 [source,,linenums]
 ----
@@ -1114,8 +1113,8 @@ else {
 * This KHR already defines the trait [code]#is_property_list_for#, but should it
   also define the trait [code]#is_property_list#?
   It turns out that none of the APIs in this KHR need [code]#is_property_list#
-  to implement any of their constraints, but maybe this trait would be useful
-  to users who want to create a utility function that takes a generic properties
+  to implement any of their constraints, but maybe this trait would be useful to
+  users who want to create a utility function that takes a generic properties
   list?
 
 * [code]#unsampled_image# and [code]#sampled_image# have a [code]#property_list#
