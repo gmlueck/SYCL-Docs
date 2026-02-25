@@ -202,8 +202,8 @@ struct prop2_key{};
 
 }
 
-// The property key is used as a template parameter to has_property, and
-// get_property.
+// Applications use the property key as a template parameter to has_property
+// and get_property.
 if constexpr (plist.has_property<sycl::khr::prop2_key>()) {
   if constexpr (plist.get_property<sycl::khr::prop2_key>().value == 42) {
     /*...*/
@@ -254,6 +254,8 @@ This deduction guide could trivially deduce [code]#EncodedProperties# as exactly
 the same pack as [code]#Properties#.
 However, in the future, this KHR extension might be extended in a way that
 requires a more complex deduction.
+Applications should not assume that [code]#EncodedProperties# is the same as
+[code]#Properties#.
 {endnote}
 
 '''
@@ -1117,6 +1119,18 @@ else {
   users who want to create a utility function that takes a generic properties
   list?
 
-* [code]#unsampled_image# and [code]#sampled_image# have a [code]#property_list#
-  parameter for [code]#get_access# and [code]#get_host_access#, but
-  [code]#buffer# does not.
+* In the core spec, the [code]#unsampled_image# and [code]#sampled_image#
+  classes have a [code]#property_list# parameter for their [code]#get_access#
+  and [code]#get_host_access# member functions.
+  However, the [code]#buffer# class does not.
+  This seems like a weird inconsistency.
+  Should this KHR provide new overloads of [code]#unsampled_image::get_access#,
+  [code]#unsampled_image::get_host_access#, etc. that take the new-style
+  properties list?
+  Or, do we consider it a mistake that we added the [code]#property_list#
+  parameter to these functions in the core spec, in which case we wouldn't want
+  to propagate that mistake into this KHR.
+  In my opinion, all of the [code]#get_access# and [code]#get_host_access#
+  member functions should be deprecated in favor of the pattern where the
+  application constructs an [code]#accessor# or [code]#host_accessor# from the
+  image or buffer.
