@@ -1540,17 +1540,243 @@ The following traits inherit from [code]#std::true#:
 
 === New accessor properties
 
+[[sec:khr-properties-usm-additions]]
 == Additions to the USM functions
 
+This extension adds new property-accepting overloads to the [code]#usm_allocator#
+constructors and to the USM allocation functions.
+
+Most of the USM allocation entry points are free functions, which are not classes,
+so this extension defines an empty tag type [code]#khr::usm_allocation# to serve as
+the [code]#Class# parameter of the [api]#khr::is_property_for# trait for properties
+that can be used with the USM allocator and the USM allocation functions.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-usm-allocation-tag]
+----
+namespace sycl::khr {
+
+struct usm_allocation; // tag type, never defined
+
+} // namespace sycl::khr
+----
+
+[[sec:khr-properties-usm-allocator-constructors]]
 === New USM allocator constructors
 
+This extension adds the following new constructors to the [api]#usm_allocator#
+class, which allow an allocator to be constructed with the new style properties
+defined in this extension.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-usm-allocator]
+----
+namespace sycl {
+
+template <typename T, usm::alloc AllocKind, std::size_t Alignment = 0>
+class usm_allocator {
+  template <typename PropertyOrList = khr::empty_properties_t>
+  usm_allocator(const context& syclContext, const device& syclDevice,  // (1)
+                PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  usm_allocator(const queue& syclQueue, PropertyOrList props = {});     // (2)
+
+  // ...
+};
+
+} // namespace sycl
+----
+
+_Constraints:_ For both overloads, either
+
+* [api]#khr::is_property_for_v<PropertyOrList, usm_allocation># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, usm_allocation># is
+  [code]#true#.
+
+_Effects (1)-(2):_ The same effect as the corresponding [code]#usm_allocator#
+constructor from the <<core-spec>> except that the properties are specified by
+[code]#props#.
+
+[[sec:khr-properties-usm-device-allocs]]
 === New device allocation functions
 
+This extension adds the following new overloads of the device USM allocation
+functions.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-usm-malloc-device]
+----
+namespace sycl {
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* malloc_device(std::size_t numBytes, const device& syclDevice,       // (1)
+                    const context& syclContext, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* malloc_device(std::size_t numBytes, const queue& syclQueue,         // (2)
+                    PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* aligned_alloc_device(std::size_t alignment, std::size_t numBytes,   // (3)
+                           const device& syclDevice, const context& syclContext,
+                           PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* aligned_alloc_device(std::size_t alignment, std::size_t numBytes,   // (4)
+                           const queue& syclQueue, PropertyOrList props = {});
+
+} // namespace sycl
+----
+
+_Constraints:_ For all overloads, either
+
+* [api]#khr::is_property_for_v<PropertyOrList, usm_allocation># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, usm_allocation># is
+  [code]#true#.
+
+_Effects (1)-(4):_ The same effect as the corresponding device USM allocation
+function from the <<core-spec>> except that the properties are specified by
+[code]#props#.
+
+[[sec:khr-properties-usm-host-allocs]]
 === New host allocation functions
 
+This extension adds the following new overloads of the host USM allocation
+functions.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-usm-malloc-host]
+----
+namespace sycl {
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* malloc_host(std::size_t numBytes, const context& syclContext,       // (1)
+                  PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* malloc_host(std::size_t numBytes, const queue& syclQueue,           // (2)
+                  PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* aligned_alloc_host(std::size_t alignment, std::size_t numBytes,     // (3)
+                         const context& syclContext, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* aligned_alloc_host(std::size_t alignment, std::size_t numBytes,     // (4)
+                         const queue& syclQueue, PropertyOrList props = {});
+
+} // namespace sycl
+----
+
+_Constraints:_ For all overloads, either
+
+* [api]#khr::is_property_for_v<PropertyOrList, usm_allocation># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, usm_allocation># is
+  [code]#true#.
+
+_Effects (1)-(4):_ The same effect as the corresponding host USM allocation
+function from the <<core-spec>> except that the properties are specified by
+[code]#props#.
+
+[[sec:khr-properties-usm-shared-allocs]]
 === New shared allocation functions
 
+This extension adds the following new overloads of the shared USM allocation
+functions.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-usm-malloc-shared]
+----
+namespace sycl {
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* malloc_shared(std::size_t numBytes, const device& syclDevice,       // (1)
+                    const context& syclContext, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* malloc_shared(std::size_t numBytes, const queue& syclQueue,         // (2)
+                    PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* aligned_alloc_shared(std::size_t alignment, std::size_t numBytes,   // (3)
+                           const device& syclDevice, const context& syclContext,
+                           PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* aligned_alloc_shared(std::size_t alignment, std::size_t numBytes,   // (4)
+                           const queue& syclQueue, PropertyOrList props = {});
+
+} // namespace sycl
+----
+
+_Constraints:_ For all overloads, either
+
+* [api]#khr::is_property_for_v<PropertyOrList, usm_allocation># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, usm_allocation># is
+  [code]#true#.
+
+_Effects (1)-(4):_ The same effect as the corresponding shared USM allocation
+function from the <<core-spec>> except that the properties are specified by
+[code]#props#.
+
+[[sec:khr-properties-usm-parameterized-allocs]]
 === New parameterized allocation functions
+
+This extension adds the following new overloads of the parameterized USM
+allocation functions, which select the kind of allocation through a
+[code]#usm::alloc# parameter.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-usm-malloc]
+----
+namespace sycl {
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* malloc(std::size_t numBytes, const device& syclDevice,             // (1)
+             const context& syclContext, usm::alloc kind,
+             PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* malloc(std::size_t numBytes, const queue& syclQueue, usm::alloc kind, // (2)
+             PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* aligned_alloc(std::size_t alignment, std::size_t numBytes,         // (3)
+                    const device& syclDevice, const context& syclContext,
+                    usm::alloc kind, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+void* aligned_alloc(std::size_t alignment, std::size_t numBytes,         // (4)
+                    const queue& syclQueue, usm::alloc kind,
+                    PropertyOrList props = {});
+
+} // namespace sycl
+----
+
+_Constraints:_ For all overloads, either
+
+* [api]#khr::is_property_for_v<PropertyOrList, usm_allocation># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, usm_allocation># is
+  [code]#true#.
+
+_Effects (1)-(4):_ The same effect as the corresponding parameterized USM
+allocation function from the <<core-spec>> except that the properties are
+specified by [code]#props#.
+
+[[sec:khr-properties-usm-properties]]
+=== New USM properties
+
+This extension defines no USM property.
+The overloads above are added so that a future USM property (defined by the
+<<core-spec>> or by another extension) can be passed through the new style
+[code]#properties# mechanism.
 
 == Additions to the reduction interface
 
@@ -1721,17 +1947,189 @@ The following traits inherit from [code]#std::true#:
 [code]#property::initialize_to_identity# and
 [code]#property::key::initialize_to_identity# are trivially copyable.
 
+[[sec:khr-properties-kernel-bundle-additions]]
 == Additions to the kernel bundle functions
 
+This extension adds new property-accepting overloads to the free functions
+[code]#compile#, [code]#link#, and [code]#build#.
+
+These are free functions, not classes, so this extension defines an empty tag
+type [code]#khr::kernel_bundle# to serve as the [code]#Class# parameter of the
+[api]#khr::is_property_for# trait for properties that can be used with these
+functions.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-kernel-bundle-tag]
+----
+namespace sycl::khr {
+
+struct kernel_bundle; // tag type, never defined
+
+} // namespace sycl::khr
+----
+
+[[sec:khr-properties-kernel-bundle-compile]]
 === New compile function overloads
 
+This extension adds the following new overloads of the [code]#compile# function.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-compile]
+----
+namespace sycl {
+
+template <typename PropertyOrList = khr::empty_properties_t>
+kernel_bundle<bundle_state::object>
+compile(const kernel_bundle<bundle_state::input>& inputBundle,            // (1)
+        const std::vector<device>& devs, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+kernel_bundle<bundle_state::object>
+compile(const kernel_bundle<bundle_state::input>& inputBundle,            // (2)
+        PropertyOrList props = {});
+
+} // namespace sycl
+----
+
+_Constraints:_ For both overloads, either
+
+* [api]#khr::is_property_for_v<PropertyOrList, kernel_bundle># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, kernel_bundle># is
+  [code]#true#.
+
+_Effects (1)-(2):_ The same effect as the corresponding [code]#compile# overload
+from the <<core-spec>> except that the properties are specified by [code]#props#.
+
+[[sec:khr-properties-kernel-bundle-link]]
 === New link function overloads
 
+This extension adds the following new overloads of the [code]#link# function.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-link]
+----
+namespace sycl {
+
+template <typename PropertyOrList = khr::empty_properties_t>
+kernel_bundle<bundle_state::executable>
+link(const std::vector<kernel_bundle<bundle_state::object>>& objectBundles, // (1)
+     const std::vector<device>& devs, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+kernel_bundle<bundle_state::executable>
+link(const kernel_bundle<bundle_state::object>& objectBundle,             // (2)
+     const std::vector<device>& devs, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+kernel_bundle<bundle_state::executable>
+link(const std::vector<kernel_bundle<bundle_state::object>>& objectBundles, // (3)
+     PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+kernel_bundle<bundle_state::executable>
+link(const kernel_bundle<bundle_state::object>& objectBundle,             // (4)
+     PropertyOrList props = {});
+
+} // namespace sycl
+----
+
+_Constraints:_ For all overloads, either
+
+* [api]#khr::is_property_for_v<PropertyOrList, kernel_bundle># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, kernel_bundle># is
+  [code]#true#.
+
+_Effects (1)-(4):_ The same effect as the corresponding [code]#link# overload
+from the <<core-spec>> except that the properties are specified by [code]#props#.
+
+[[sec:khr-properties-kernel-bundle-build]]
 === New build function overloads
 
+This extension adds the following new overloads of the [code]#build# function.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-build]
+----
+namespace sycl {
+
+template <typename PropertyOrList = khr::empty_properties_t>
+kernel_bundle<bundle_state::executable>
+build(const kernel_bundle<bundle_state::input>& inputBundle,              // (1)
+      const std::vector<device>& devs, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+kernel_bundle<bundle_state::executable>
+build(const kernel_bundle<bundle_state::input>& inputBundle,              // (2)
+      PropertyOrList props = {});
+
+} // namespace sycl
+----
+
+_Constraints:_ For both overloads, either
+
+* [api]#khr::is_property_for_v<PropertyOrList, kernel_bundle># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, kernel_bundle># is
+  [code]#true#.
+
+_Effects (1)-(2):_ The same effect as the corresponding [code]#build# overload
+from the <<core-spec>> except that the properties are specified by [code]#props#.
+
+[[sec:khr-properties-kernel-bundle-properties]]
+=== New kernel bundle properties
+
+This extension defines no kernel bundle property.
+The <<core-spec>> states that [code]#compile#, [code]#link#, and [code]#build#
+accept a [code]#property_list# but does not itself define any such property; the
+overloads above are added so that a future property (defined by an extension) can
+be passed through the new style [code]#properties# mechanism.
+
+[[sec:khr-properties-stream-additions]]
 == Additions to the stream class
 
+[[sec:khr-properties-stream-constructors]]
 === New stream constructors
+
+This extension adds the following new constructor to the [api]#stream# class,
+which allows a stream to be constructed with the new style properties defined in
+this extension.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-stream]
+----
+namespace sycl {
+
+class stream {
+  template <typename PropertyOrList = khr::empty_properties_t>
+  stream(std::size_t totalBufferSize, std::size_t workItemBufferSize,
+         handler& cgh, PropertyOrList props = {});
+
+  // ...
+};
+
+} // namespace sycl
+----
+
+_Constraints:_
+
+* [api]#khr::is_property_for_v<PropertyOrList, stream># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, stream># is [code]#true#.
+
+_Effects:_ The same effect as [code]#stream(totalBufferSize, workItemBufferSize,
+cgh, propList)# from the <<core-spec>> except that the properties are specified by
+[code]#props#.
+
+[[sec:khr-properties-stream-properties]]
+=== New stream properties
+
+This extension defines no stream property.
+The overload above is added so that a future stream property (defined by the
+<<core-spec>> or by another extension) can be passed through the new style
+[code]#properties# mechanism.
 
 [[sec:khr-properties-examples-for-implementors]]
 == Examples for implementors
@@ -1915,6 +2313,26 @@ Applications can query a [code]#properties# list with [code]#has_property# and
 
 [[sec:khr-properties-issues]]
 == Issues
+
+* Do we want to extend the kernel bundle functions ([code]#compile#,
+  [code]#link#, [code]#build#) with new-style property support at all?
+  The <<core-spec>> states that it defines no [code]#compile#, [code]#link#, or
+  [code]#build# property and that such properties may be specified by a vendor
+  extension.
+  This extension therefore adds the property-accepting overloads only as a
+  vehicle for a future property; no kernel bundle property is defined today.
+  As with the accessor classes, the benefit of adding these overloads now is
+  small relative to the surface they introduce, so we should decide whether to
+  keep them or omit the kernel bundle additions until an actual property exists.
+
+* For the USM allocation entry points, is a single tag type
+  [code]#khr::usm_allocation# the right way to express property applicability, or
+  should the [code]#usm_allocator# class (which is a real class) be used directly
+  as the [code]#Class# operand, with the tag reserved for the free allocation
+  functions only?
+  This extension currently keys both the [code]#usm_allocator# constructors and
+  the free allocation functions on the single [code]#usm_allocation# tag, on the
+  assumption that a USM property would apply to the whole allocation domain.
 
 * Do we want to extend the accessor classes with new-style property support at
   all?
