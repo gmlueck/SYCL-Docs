@@ -1040,23 +1040,20 @@ else {
 }
 ----
 
+[[sec:khr-properties-limitations]]
+== Limitations
+
+This extension does not define [code]#operator==# or [code]#operator!=# for the
+[code]#properties# class, and a [code]#properties# list does not follow the
+common reference semantics or the common by-value semantics defined by the
+<<core-spec>>.
+Two [code]#properties# lists constructed from the same set of properties may
+have different types when the properties are specified in a different order.
+Applications can query a [code]#properties# list with [code]#has_property# and
+[code]#get_property# (for example, by using [code]#decltype#).
+
 [[sec:khr-properties-issues]]
 == Issues
-
-* Should we define [code]#operator==# and [code]#operator!=# for the
-  [code]#properties# list?
-  This would require metaprogramming to deduce [code]#EncodedProperties# as the
-  sorted list of [code]#Properties#, otherwise two [code]#properties# lists
-  constructed from the same set of properties would have different types if the
-  properties were specified in a different order.
-  The {dpcpp} extension has this, but I left it out of this KHR because the
-  comparison operators didn't seem that useful, and I didn't think it was worth
-  the extra complexity required to sort the properties.
-  Sorting the properties (via metaprogramming) would also slow down compilation
-  (because the properties would be sorted at compilation time), and I didn't
-  want to impact compilation time by adding this sorting requirement.
-  However, I defined the [code]#properties# constructor in such a way that we
-  could add this sorting as a later revision of this KHR.
 
 * Can we guarantee that [code]#properties# is trivially copyable unless it
   contains a runtime property that is not trivially copyable?
