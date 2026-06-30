@@ -1055,13 +1055,6 @@ Applications can query a [code]#properties# list with [code]#has_property# and
 [[sec:khr-properties-issues]]
 == Issues
 
-* This KHR already defines the trait [code]#is_property_list_for#, but should it
-  also define the trait [code]#is_property_list#?
-  It turns out that none of the APIs in this KHR need [code]#is_property_list#
-  to implement any of their constraints, but maybe this trait would be useful to
-  users who want to create a utility function that takes a generic properties
-  list?
-
 * In the core spec, the [code]#unsampled_image# and [code]#sampled_image#
   classes have a [code]#property_list# parameter for their [code]#get_access#
   and [code]#get_host_access# member functions.
