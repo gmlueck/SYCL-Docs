@@ -1055,10 +1055,338 @@ propList)# except that the properties are specified by [code]#props#.
 _Effects (2):_ The same effect as [code]#buffer(first, last, propList)# except
 that the properties are specified by [code]#props#.
 
-[[sec:khr-properties-image-constructors]]
+[[sec:khr-properties-unsampled-image-constructors]]
 === New unsampled image constructors
 
+This extension adds the following new constructors to the [api]#unsampled_image#
+class, which allow an unsampled image to be constructed with the new style
+properties defined in this extension.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-unsampled-image]
+----
+namespace sycl {
+
+template <int Dimensions = 1, typename AllocatorT = image_allocator>
+class unsampled_image {
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(image_format format, const range<Dimensions>& rangeRef,
+                  PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(image_format format, const range<Dimensions>& rangeRef,
+                  AllocatorT allocator, PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(image_format format, const range<Dimensions>& rangeRef,
+                  const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(image_format format, const range<Dimensions>& rangeRef,
+                  const range<Dimensions - 1>& pitch, AllocatorT allocator,
+                  PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(void* hostPointer, image_format format,
+                  const range<Dimensions>& rangeRef, PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(void* hostPointer, image_format format,
+                  const range<Dimensions>& rangeRef, AllocatorT allocator,
+                  PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(void* hostPointer, image_format format,
+                  const range<Dimensions>& rangeRef,
+                  const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(void* hostPointer, image_format format,
+                  const range<Dimensions>& rangeRef,
+                  const range<Dimensions - 1>& pitch, AllocatorT allocator,
+                  PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
+                  const range<Dimensions>& rangeRef, PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
+                  const range<Dimensions>& rangeRef, AllocatorT allocator,
+                  PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
+                  const range<Dimensions>& rangeRef,
+                  const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
+                  const range<Dimensions>& rangeRef,
+                  const range<Dimensions - 1>& pitch, AllocatorT allocator,
+                  PropertyOrList props = {});
+
+  // ...
+};
+
+} // namespace sycl
+----
+
+'''
+
+.[apititle]#Construct with uninitialized memory#
+[source,role=synopsis,id=api:khr-properties-unsampled-image-ctor-uninit]
+----
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(image_format format, const range<Dimensions>& rangeRef,  (1)
+                PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(image_format format, const range<Dimensions>& rangeRef,  (2)
+                AllocatorT allocator, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(image_format format, const range<Dimensions>& rangeRef,  (3)
+                const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(image_format format, const range<Dimensions>& rangeRef,  (4)
+                const range<Dimensions - 1>& pitch, AllocatorT allocator,
+                PropertyOrList props = {});
+----
+
+_Constraints:_ Overloads (3) and (4) are available only when
+[code]#Dimensions > 1#, and for all overloads either
+
+* [api]#khr::is_property_for_v<PropertyOrList, unsampled_image># is [code]#true#,
+  or
+* [api]#khr::is_property_list_for_v<PropertyOrList, unsampled_image># is
+  [code]#true#.
+
+_Effects (1)-(4):_ The same effect as the corresponding [code]#unsampled_image#
+constructor with uninitialized memory from the <<core-spec>> except that the
+properties are specified by [code]#props#.
+
+'''
+
+.[apititle]#Construct with host memory#
+[source,role=synopsis,id=api:khr-properties-unsampled-image-ctor-host-mem]
+----
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(void* hostPointer, image_format format,                  (1)
+                const range<Dimensions>& rangeRef, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(void* hostPointer, image_format format,                  (2)
+                const range<Dimensions>& rangeRef, AllocatorT allocator,
+                PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(void* hostPointer, image_format format,                  (3)
+                const range<Dimensions>& rangeRef,
+                const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(void* hostPointer, image_format format,                  (4)
+                const range<Dimensions>& rangeRef,
+                const range<Dimensions - 1>& pitch, AllocatorT allocator,
+                PropertyOrList props = {});
+----
+
+_Constraints:_ Overloads (3) and (4) are available only when
+[code]#Dimensions > 1#, and for all overloads either
+
+* [api]#khr::is_property_for_v<PropertyOrList, unsampled_image># is [code]#true#,
+  or
+* [api]#khr::is_property_list_for_v<PropertyOrList, unsampled_image># is
+  [code]#true#.
+
+_Effects (1)-(4):_ The same effect as the corresponding [code]#unsampled_image#
+constructor with host memory from the <<core-spec>> except that the properties
+are specified by [code]#props#.
+
+'''
+
+.[apititle]#Construct from memory owned by a shared pointer#
+[source,role=synopsis,id=api:khr-properties-unsampled-image-ctor-shared-ptr]
+----
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,  (1)
+                const range<Dimensions>& rangeRef, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,  (2)
+                const range<Dimensions>& rangeRef, AllocatorT allocator,
+                PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,  (3)
+                const range<Dimensions>& rangeRef,
+                const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,  (4)
+                const range<Dimensions>& rangeRef,
+                const range<Dimensions - 1>& pitch, AllocatorT allocator,
+                PropertyOrList props = {});
+----
+
+_Constraints:_ Overloads (3) and (4) are available only when
+[code]#Dimensions > 1#, and for all overloads either
+
+* [api]#khr::is_property_for_v<PropertyOrList, unsampled_image># is [code]#true#,
+  or
+* [api]#khr::is_property_list_for_v<PropertyOrList, unsampled_image># is
+  [code]#true#.
+
+_Effects (1)-(4):_ The same effect as the corresponding [code]#unsampled_image#
+constructor from memory owned by a shared pointer from the <<core-spec>> except
+that the properties are specified by [code]#props#.
+
+[[sec:khr-properties-sampled-image-constructors]]
 === New sampled image constructors
+
+This extension adds the following new constructors to the [api]#sampled_image#
+class, which allow a sampled image to be constructed with the new style
+properties defined in this extension.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-sampled-image]
+----
+namespace sycl {
+
+template <int Dimensions = 1, typename AllocatorT = image_allocator>
+class sampled_image {
+  template <typename PropertyOrList = khr::empty_properties_t>
+  sampled_image(const void* hostPointer, image_format format,
+                image_sampler sampler, const range<Dimensions>& rangeRef,
+                PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  sampled_image(const void* hostPointer, image_format format,
+                image_sampler sampler, const range<Dimensions>& rangeRef,
+                AllocatorT allocator, PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  sampled_image(const void* hostPointer, image_format format,
+                image_sampler sampler, const range<Dimensions>& rangeRef,
+                const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  sampled_image(const void* hostPointer, image_format format,
+                image_sampler sampler, const range<Dimensions>& rangeRef,
+                const range<Dimensions - 1>& pitch, AllocatorT allocator,
+                PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  sampled_image(std::shared_ptr<const void>& hostPointer, image_format format,
+                image_sampler sampler, const range<Dimensions>& rangeRef,
+                PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  sampled_image(std::shared_ptr<const void>& hostPointer, image_format format,
+                image_sampler sampler, const range<Dimensions>& rangeRef,
+                AllocatorT allocator, PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  sampled_image(std::shared_ptr<const void>& hostPointer, image_format format,
+                image_sampler sampler, const range<Dimensions>& rangeRef,
+                const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+
+  template <typename PropertyOrList = khr::empty_properties_t>
+  sampled_image(std::shared_ptr<const void>& hostPointer, image_format format,
+                image_sampler sampler, const range<Dimensions>& rangeRef,
+                const range<Dimensions - 1>& pitch, AllocatorT allocator,
+                PropertyOrList props = {});
+
+  // ...
+};
+
+} // namespace sycl
+----
+
+'''
+
+.[apititle]#Construct with host memory#
+[source,role=synopsis,id=api:khr-properties-sampled-image-ctor-host-mem]
+----
+template <typename PropertyOrList = khr::empty_properties_t>
+sampled_image(const void* hostPointer, image_format format,              (1)
+              image_sampler sampler, const range<Dimensions>& rangeRef,
+              PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+sampled_image(const void* hostPointer, image_format format,              (2)
+              image_sampler sampler, const range<Dimensions>& rangeRef,
+              AllocatorT allocator, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+sampled_image(const void* hostPointer, image_format format,              (3)
+              image_sampler sampler, const range<Dimensions>& rangeRef,
+              const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+sampled_image(const void* hostPointer, image_format format,              (4)
+              image_sampler sampler, const range<Dimensions>& rangeRef,
+              const range<Dimensions - 1>& pitch, AllocatorT allocator,
+              PropertyOrList props = {});
+----
+
+_Constraints:_ Overloads (3) and (4) are available only when
+[code]#Dimensions > 1#, and for all overloads either
+
+* [api]#khr::is_property_for_v<PropertyOrList, sampled_image># is [code]#true#,
+  or
+* [api]#khr::is_property_list_for_v<PropertyOrList, sampled_image># is
+  [code]#true#.
+
+_Effects (1)-(4):_ The same effect as the corresponding [code]#sampled_image#
+constructor with host memory from the <<core-spec>> except that the properties
+are specified by [code]#props#.
+
+'''
+
+.[apititle]#Construct from memory owned by a shared pointer#
+[source,role=synopsis,id=api:khr-properties-sampled-image-ctor-shared-ptr]
+----
+template <typename PropertyOrList = khr::empty_properties_t>
+sampled_image(std::shared_ptr<const void>& hostPointer,                  (1)
+              image_format format, image_sampler sampler,
+              const range<Dimensions>& rangeRef, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+sampled_image(std::shared_ptr<const void>& hostPointer,                  (2)
+              image_format format, image_sampler sampler,
+              const range<Dimensions>& rangeRef, AllocatorT allocator,
+              PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+sampled_image(std::shared_ptr<const void>& hostPointer,                  (3)
+              image_format format, image_sampler sampler,
+              const range<Dimensions>& rangeRef,
+              const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+
+template <typename PropertyOrList = khr::empty_properties_t>
+sampled_image(std::shared_ptr<const void>& hostPointer,                  (4)
+              image_format format, image_sampler sampler,
+              const range<Dimensions>& rangeRef,
+              const range<Dimensions - 1>& pitch, AllocatorT allocator,
+              PropertyOrList props = {});
+----
+
+_Constraints:_ Overloads (3) and (4) are available only when
+[code]#Dimensions > 1#, and for all overloads either
+
+* [api]#khr::is_property_for_v<PropertyOrList, sampled_image># is [code]#true#,
+  or
+* [api]#khr::is_property_list_for_v<PropertyOrList, sampled_image># is
+  [code]#true#.
+
+_Effects (1)-(4):_ The same effect as the corresponding [code]#sampled_image#
+constructor from memory owned by a shared pointer from the <<core-spec>> except
+that the properties are specified by [code]#props#.
 
 [[sec:khr-properties-buffer-image-properties]]
 === New buffer and image properties
