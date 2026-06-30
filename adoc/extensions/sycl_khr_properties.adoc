@@ -1055,14 +1055,6 @@ Applications can query a [code]#properties# list with [code]#has_property# and
 [[sec:khr-properties-issues]]
 == Issues
 
-* Can we guarantee that [code]#properties# is trivially copyable unless it
-  contains a runtime property that is not trivially copyable?
-  The POC uses [code]#std::tuple# to implement [code]#properties#, and
-  [code]#std::tuple# is not trivially copyable.
-  As a result the POC version of [code]#properties# is not trivially copyable.
-  This seems like it should be fixable, though, because the {dpcpp} version
-  **is** trivially copyable.
-
 * This KHR already defines the trait [code]#is_property_list_for#, but should it
   also define the trait [code]#is_property_list#?
   It turns out that none of the APIs in this KHR need [code]#is_property_list#
