@@ -1519,6 +1519,11 @@ The following traits inherit from [code]#std::true#:
 
 == Additions to the accessor classes
 
+// Intentionally empty: this extension does not currently add new-style property
+// support to the accessor classes. See the corresponding bullet in the Issues
+// section on whether the accessor API should be extended given that no property
+// is presently used with accessors.
+
 === New buffer accessor constructors
 
 === New buffer host accessor constructors
@@ -1910,6 +1915,22 @@ Applications can query a [code]#properties# list with [code]#has_property# and
 
 [[sec:khr-properties-issues]]
 == Issues
+
+* Do we want to extend the accessor classes with new-style property support at
+  all?
+  The [code]#accessor#, [code]#host_accessor#, [code]#unsampled_image_accessor#,
+  and [code]#host_unsampled_image_accessor# classes each take a
+  [code]#property_list# parameter on their constructors in the <<core-spec>>, but
+  the only property presently usable with an accessor is [code]#no_init#.
+  Adding a [code]#PropertyOrList# overload for every accessor constructor
+  (placeholder vs. bound, the deduction tags, ranged vs. non-ranged, the various
+  access targets) would add substantial API surface for a single property, so
+  this extension currently adds nothing to the accessor classes (the section is
+  left empty).
+  If we do decide to add it, what is the preferred way to specify "every
+  constructor that takes a [code]#property_list# also has an overload taking a
+  [code]#PropertyOrList#" without enumerating all of the accessor constructors
+  individually?
 
 * In the core spec, the [code]#unsampled_image# and [code]#sampled_image#
   classes have a [code]#property_list# parameter for their [code]#get_access#
