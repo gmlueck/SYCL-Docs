@@ -1549,9 +1549,172 @@ The following traits inherit from [code]#std::true#:
 
 == Additions to the reduction interface
 
+[[sec:khr-properties-reduction-overloads]]
 === New reduction function overloads
 
+This extension adds the following new overloads to the [code]#reduction#
+interface, which allow a reduction to be created with the new style properties
+defined in this extension.
+
+The [code]#reduction# interface is not a class, so this extension defines an
+empty tag type [code]#khr::reduction# to serve as the [code]#Class# parameter of
+the [api]#khr::is_property_for# trait for properties that can be used with the
+[code]#reduction# interface.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-reduction-tag]
+----
+namespace sycl::khr {
+
+struct reduction; // tag type, never defined
+
+} // namespace sycl::khr
+----
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-reduction]
+----
+namespace sycl {
+
+template <typename BufferT, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(BufferT vars, handler& cgh, BinaryOperation combiner,
+                          PropertyOrList props = {});
+
+template <typename T, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(T* var, BinaryOperation combiner,
+                          PropertyOrList props = {});
+
+template <typename T, typename Extent, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(span<T, Extent> vars, BinaryOperation combiner,
+                          PropertyOrList props = {});
+
+template <typename BufferT, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(BufferT vars, handler& cgh,
+                          const BufferT::value_type& identity,
+                          BinaryOperation combiner, PropertyOrList props = {});
+
+template <typename T, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(T* var, const T& identity, BinaryOperation combiner,
+                          PropertyOrList props = {});
+
+template <typename T, typename Extent, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(span<T, Extent> vars, const T& identity,
+                          BinaryOperation combiner, PropertyOrList props = {});
+
+} // namespace sycl
+----
+
+'''
+
+.[apititle]#Reduction without an identity value#
+[source,role=synopsis,id=api:khr-properties-reduction-no-identity]
+----
+template <typename BufferT, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(BufferT vars, handler& cgh,              (1)
+                          BinaryOperation combiner, PropertyOrList props = {});
+
+template <typename T, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(T* var, BinaryOperation combiner,        (2)
+                          PropertyOrList props = {});
+
+template <typename T, typename Extent, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(span<T, Extent> vars,                    (3)
+                          BinaryOperation combiner, PropertyOrList props = {});
+----
+
+_Constraints:_ Overload (3) is available only when
+[code]#Extent != sycl::dynamic_extent#, and for all overloads either
+
+* [api]#khr::is_property_for_v<PropertyOrList, reduction># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, reduction># is [code]#true#.
+
+_Effects (1)-(3):_ The same effect as the corresponding [code]#reduction#
+overload without an identity value from the <<core-spec>> except that the
+properties are specified by [code]#props#.
+
+'''
+
+.[apititle]#Reduction with an identity value#
+[source,role=synopsis,id=api:khr-properties-reduction-identity]
+----
+template <typename BufferT, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(BufferT vars, handler& cgh,             (1)
+                          const BufferT::value_type& identity,
+                          BinaryOperation combiner, PropertyOrList props = {});
+
+template <typename T, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(T* var, const T& identity,             (2)
+                          BinaryOperation combiner, PropertyOrList props = {});
+
+template <typename T, typename Extent, typename BinaryOperation,
+          typename PropertyOrList = khr::empty_properties_t>
+__unspecified__ reduction(span<T, Extent> vars, const T& identity,  (3)
+                          BinaryOperation combiner, PropertyOrList props = {});
+----
+
+_Constraints:_ Overload (3) is available only when
+[code]#Extent != sycl::dynamic_extent#, and for all overloads either
+
+* [api]#khr::is_property_for_v<PropertyOrList, reduction># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, reduction># is [code]#true#.
+
+_Effects (1)-(3):_ The same effect as the corresponding [code]#reduction#
+overload with an identity value from the <<core-spec>> except that the
+properties are specified by [code]#props#.
+
+[[sec:khr-properties-reduction-properties]]
 === New reduction properties
+
+This extension adds the following new style property that can be used with the
+[code]#reduction# interface.
+
+'''
+
+.[apidef]#khr::initialize_to_identity#
+[source,role=synopsis,id=api:khr-properties-initialize-to-identity]
+----
+namespace sycl::khr::property {
+
+struct initialize_to_identity {
+  constexpr initialize_to_identity(bool v = true) : value{v} {}
+  bool value;
+};
+
+namespace key {
+struct initialize_to_identity {};
+}
+
+} // namespace sycl::khr
+----
+
+When a reduction is created with this property and the [code]#value# is
+[code]#true#, the effect is the same as if the reduction was created with
+[api]#property::reduction::initialize_to_identity#.
+If the [code]#value# is [code]#false#, this property has no effect on the
+reduction.
+
+The following traits inherit from [code]#std::true#:
+
+* [code]#is_property<property::initialize_to_identity>#
+* [code]#is_property_key<property::key::initialize_to_identity>#
+* [code]#is_property_for<property::initialize_to_identity, reduction>#
+* [code]#is_property_key_for<property::key::initialize_to_identity, reduction>#
+
+[code]#property::initialize_to_identity# and
+[code]#property::key::initialize_to_identity# are trivially copyable.
 
 == Additions to the kernel bundle functions
 
