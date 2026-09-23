@@ -1963,21 +1963,13 @@ The following traits inherit from [code]#std::true#:
 This extension adds new property-accepting overloads to the free functions
 [code]#compile#, [code]#link#, and [code]#build#.
 
-These are free functions, not classes, so this extension defines an empty tag
-type [code]#khr::kernel_bundle# to serve as the [code]#Class# parameter of the
-[api]#khr::is_property_for# trait for properties that can be used with these
-functions.
-
-'''
-
-[source,role=synopsis,id=api:khr-properties-kernel-bundle-tag]
-----
-namespace sycl::khr {
-
-struct kernel_bundle; // tag type, never defined
-
-} // namespace sycl::khr
-----
+Although these are free functions, each one produces a [code]#kernel_bundle#, so
+this extension uses the [code]#kernel_bundle# class itself as the
+[code]#Class# parameter of the [api]#khr::is_property_for# trait for properties
+that can be used with these functions.
+This follows the same convention as the [code]#buffer#, [code]#unsampled_image#,
+and [code]#sampled_image# classes, and it avoids defining a tag type whose name
+would shadow the [code]#kernel_bundle# class in namespace [code]#sycl#.
 
 [[sec:khr-properties-kernel-bundle-compile]]
 === New compile function overloads
