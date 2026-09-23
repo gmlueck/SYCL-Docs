@@ -2384,3 +2384,27 @@ Applications can query a [code]#properties# list with [code]#has_property# and
   member functions should be deprecated in favor of the pattern where the
   application constructs an [code]#accessor# or [code]#host_accessor# from the
   image or buffer.
+
+* This extension declares the namespace [code]#sycl::khr::property#, which has
+  the same name as the [code]#sycl::property# namespace from the
+  <<core-spec>>.
+  A translation unit containing both [code]#using namespace sycl;# and
+  [code]#using namespace sycl::khr;# therefore cannot name either namespace
+  unqualified, because the name [code]#property# is found in both.
+  This also affects the core properties, so an application that adopts this
+  extension can no longer refer to [code]#property::queue::in_order# and friends
+  unqualified.
+  The same pattern already exists in other Khronos extensions, for example
+  [code]#khr::info# in [code]#sycl_khr_max_work_group_queries# and
+  [code]#khr::sub_group# in [code]#sycl_khr_group_interface#, and it is also used
+  deliberately in the {cpp} standard library, where [code]#std::ranges::find# and
+  [code]#std::find# collide in the same way.
+  Shadowing is arguably reasonable here because [code]#khr::property# is a
+  replacement for the same concept as [code]#sycl::property#, so an application
+  is expected to choose one or the other rather than to use both.
+  Do we want to keep the shadowing on that basis, or should the properties be
+  declared directly in namespace [code]#sycl::khr# with their keys in
+  [code]#sycl::khr::key#, which would avoid the collision entirely?
+  Whichever we choose, we should state the rule for namespaces under
+  [code]#sycl::khr# somewhere normative, because the <<core-spec>> currently says
+  nothing about how Khronos extensions should name entities within it.
