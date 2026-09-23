@@ -1549,19 +1549,22 @@ This extension adds new property-accepting overloads to the [code]#usm_allocator
 constructors and to the USM allocation functions.
 
 Most of the USM allocation entry points are free functions, which are not classes,
-so this extension defines an empty tag type [code]#khr::usm_allocation# to serve as
-the [code]#Class# parameter of the [api]#khr::is_property_for# trait for properties
-that can be used with the USM allocator and the USM allocation functions.
+so this extension defines an empty tag type [code]#khr::tag::usm_allocation# to
+serve as the [code]#Class# parameter of the [api]#khr::is_property_for# trait for
+properties that can be used with the USM allocator and the USM allocation
+functions.
+Tag types are declared in the nested namespace [code]#sycl::khr::tag# so that
+their names cannot shadow names in namespace [code]#sycl#.
 
 '''
 
 [source,role=synopsis,id=api:khr-properties-usm-allocation-tag]
 ----
-namespace sycl::khr {
+namespace sycl::khr::tag {
 
 struct usm_allocation; // tag type, never defined
 
-} // namespace sycl::khr
+} // namespace sycl::khr::tag
 ----
 
 [[sec:khr-properties-usm-allocator-constructors]]
@@ -1594,8 +1597,9 @@ class usm_allocator {
 
 _Constraints:_ For both overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList, usm_allocation># is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, usm_allocation># is
+* [api]#khr::is_property_for_v<PropertyOrList, tag::usm_allocation># is
+  [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, tag::usm_allocation># is
   [code]#true#.
 
 _Effects (1)-(2):_ The same effect as the corresponding [code]#usm_allocator#
@@ -1638,8 +1642,9 @@ void* aligned_alloc_device(std::size_t alignment, std::size_t numBytes,   // (4)
 
 _Constraints:_ For all overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList, usm_allocation># is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, usm_allocation># is
+* [api]#khr::is_property_for_v<PropertyOrList, tag::usm_allocation># is
+  [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, tag::usm_allocation># is
   [code]#true#.
 
 _Effects (1)-(4):_ The same effect as the corresponding device USM allocation
@@ -1681,8 +1686,9 @@ void* aligned_alloc_host(std::size_t alignment, std::size_t numBytes,     // (4)
 
 _Constraints:_ For all overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList, usm_allocation># is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, usm_allocation># is
+* [api]#khr::is_property_for_v<PropertyOrList, tag::usm_allocation># is
+  [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, tag::usm_allocation># is
   [code]#true#.
 
 _Effects (1)-(4):_ The same effect as the corresponding host USM allocation
@@ -1725,8 +1731,9 @@ void* aligned_alloc_shared(std::size_t alignment, std::size_t numBytes,   // (4)
 
 _Constraints:_ For all overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList, usm_allocation># is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, usm_allocation># is
+* [api]#khr::is_property_for_v<PropertyOrList, tag::usm_allocation># is
+  [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, tag::usm_allocation># is
   [code]#true#.
 
 _Effects (1)-(4):_ The same effect as the corresponding shared USM allocation
@@ -1772,8 +1779,9 @@ void* aligned_alloc(std::size_t alignment, std::size_t numBytes,         // (4)
 
 _Constraints:_ For all overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList, usm_allocation># is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, usm_allocation># is
+* [api]#khr::is_property_for_v<PropertyOrList, tag::usm_allocation># is
+  [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, tag::usm_allocation># is
   [code]#true#.
 
 _Effects (1)-(4):_ The same effect as the corresponding parameterized USM
@@ -1798,19 +1806,22 @@ interface, which allow a reduction to be created with the new style properties
 defined in this extension.
 
 The [code]#reduction# interface is not a class, so this extension defines an
-empty tag type [code]#khr::reduction# to serve as the [code]#Class# parameter of
-the [api]#khr::is_property_for# trait for properties that can be used with the
-[code]#reduction# interface.
+empty tag type [code]#khr::tag::reduction# to serve as the [code]#Class#
+parameter of the [api]#khr::is_property_for# trait for properties that can be
+used with the [code]#reduction# interface.
+The tag is declared in the nested namespace [code]#sycl::khr::tag# so that its
+name does not shadow the [code]#reduction# functions in namespace
+[code]#sycl#.
 
 '''
 
 [source,role=synopsis,id=api:khr-properties-reduction-tag]
 ----
-namespace sycl::khr {
+namespace sycl::khr::tag {
 
 struct reduction; // tag type, never defined
 
-} // namespace sycl::khr
+} // namespace sycl::khr::tag
 ----
 
 '''
@@ -1877,8 +1888,10 @@ __unspecified__ reduction(span<T, Extent> vars,                    (3)
 _Constraints:_ Overload (3) is available only when
 [code]#Extent != sycl::dynamic_extent#, and for all overloads either
 
-* [api]#khr::is_property_for_v<PropertyOrList, reduction># is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, reduction># is [code]#true#.
+* [api]#khr::is_property_for_v<PropertyOrList, tag::reduction># is
+  [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, tag::reduction># is
+  [code]#true#.
 
 _Effects (1)-(3):_ The same effect as the corresponding [code]#reduction#
 overload without an identity value from the <<core-spec>> except that the
@@ -1909,8 +1922,10 @@ __unspecified__ reduction(span<T, Extent> vars, const T& identity,  (3)
 _Constraints:_ Overload (3) is available only when
 [code]#Extent != sycl::dynamic_extent#, and for all overloads either
 
-* [api]#khr::is_property_for_v<PropertyOrList, reduction># is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, reduction># is [code]#true#.
+* [api]#khr::is_property_for_v<PropertyOrList, tag::reduction># is
+  [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, tag::reduction># is
+  [code]#true#.
 
 _Effects (1)-(3):_ The same effect as the corresponding [code]#reduction#
 overload with an identity value from the <<core-spec>> except that the
@@ -1951,8 +1966,9 @@ The following traits inherit from [code]#std::true#:
 
 * [code]#is_property<property::initialize_to_identity>#
 * [code]#is_property_key<property::key::initialize_to_identity>#
-* [code]#is_property_for<property::initialize_to_identity, reduction>#
-* [code]#is_property_key_for<property::key::initialize_to_identity, reduction>#
+* [code]#is_property_for<property::initialize_to_identity, tag::reduction>#
+* [code]#is_property_key_for<property::key::initialize_to_identity,
+  tag::reduction>#
 
 [code]#property::initialize_to_identity# and
 [code]#property::key::initialize_to_identity# are trivially copyable.
@@ -2328,13 +2344,14 @@ Applications can query a [code]#properties# list with [code]#has_property# and
   keep them or omit the kernel bundle additions until an actual property exists.
 
 * For the USM allocation entry points, is a single tag type
-  [code]#khr::usm_allocation# the right way to express property applicability, or
-  should the [code]#usm_allocator# class (which is a real class) be used directly
-  as the [code]#Class# operand, with the tag reserved for the free allocation
-  functions only?
+  [code]#khr::tag::usm_allocation# the right way to express property
+  applicability, or should the [code]#usm_allocator# class (which is a real
+  class) be used directly as the [code]#Class# operand, with the tag reserved for
+  the free allocation functions only?
   This extension currently keys both the [code]#usm_allocator# constructors and
-  the free allocation functions on the single [code]#usm_allocation# tag, on the
-  assumption that a USM property would apply to the whole allocation domain.
+  the free allocation functions on the single [code]#tag::usm_allocation# tag,
+  on the assumption that a USM property would apply to the whole allocation
+  domain.
 
 * Do we want to extend the accessor classes with new-style property support at
   all?
