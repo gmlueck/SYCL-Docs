@@ -281,7 +281,7 @@ _Constraints_ (1):
 _Constraints_ (2):
 
 * [code]#has_property<PropertyKey>()# is [code]#true#, and
-* [code]#khr::is_property_key_compile_time_v<PropertyKey># is false.
+* [code]#khr::is_property_key_compile_time_v<PropertyKey># is [code]#false#.
 
 _Returns:_ A copy of the property from this properties list whose associated key
 is [code]#PropertyKey#.
@@ -393,7 +393,7 @@ Otherwise it inherits from [code]#std::false_type#.
 When a property is used to construct a class, [code]#Class# is often the type of
 that class.
 When a property is used in another way, the specification which defines the
-property normally defines a class which can be used for the [code]#Class#
+property normally defines a "tag" class which can be used for the [code]#Class#
 parameter in this trait.
 {endnote}
 
@@ -435,8 +435,8 @@ inline constexpr bool is_property_list_for_v = is_property_list_for<T, Class>::v
 ----
 
 [code]#is_property_list_for# inherits from [code]#std::true_type# if [code]#T#
-is the type of a properties list and all of the properties that it contains can
-be used with class [code]#Class#.
+is the type of a [api]#khr::properties# list and all of the properties that it
+contains can be used with class [code]#Class#.
 Otherwise it inherits from [code]#std::false_type#.
 When [code]#T# is the empty properties list, this trait inherits from
 [code]#std::true_type#.
@@ -449,7 +449,190 @@ When [code]#T# is the empty properties list, this trait inherits from
 [[sec:khr-properties-context-constructors]]
 === New context constructors
 
-TODO
+This extension adds the following new constructors to the [api]#context# class,
+which allow a context to be constructed with the new style properties defined in
+this extension.
+
+'''
+
+[source,role=synopsis,id=api:khr-properties-context]
+----
+namespace sycl {
+
+class context {
+  template <typename PropertyOrList>
+  explicit context(PropertyOrList props);
+
+  template <typename PropertyOrList>
+  explicit context(async_handler asyncHandler, PropertyOrList props);
+
+  template <typename PropertyOrList>
+  explicit context(const device& dev, PropertyOrList props);
+
+  template <typename PropertyOrList>
+  explicit context(const device& dev, async_handler asyncHandler,
+                   PropertyOrList props);
+
+  template <typename PropertyOrList>
+  explicit context(const platform& plt, PropertyOrList props);
+
+  template <typename PropertyOrList>
+  explicit context(const platform& plt, async_handler asyncHandler,
+                   PropertyOrList props);
+
+  template <typename PropertyOrList>
+  explicit context(const std::vector<device>& deviceList,
+                   PropertyOrList props);
+
+  template <typename PropertyOrList>
+  explicit context(const std::vector<device>& deviceList,
+                   async_handler asyncHandler, PropertyOrList props);
+
+  // ...
+};
+
+} // namespace sycl
+----
+
+'''
+
+.[apititle]#Default constructor#
+[source,role=synopsis,id=api:khr-properties-context-ctor]
+----
+template <typename PropertyOrList>
+explicit context(PropertyOrList props);
+----
+
+_Constraints:_
+
+* [api]#khr::is_property_for_v<PropertyOrList, context># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, context># is [code]#true#.
+
+_Effects:_ The same effect as [code]#context(propList)# except that the
+properties are specified by [code]#props#.
+
+'''
+
+.[apititle]#Constructor with async handler#
+[source,role=synopsis,id=api:khr-properties-context-ctor-async-handler]
+----
+template <typename PropertyOrList>
+explicit context(async_handler asyncHandler, PropertyOrList props);
+----
+
+_Constraints:_
+
+* [api]#khr::is_property_for_v<PropertyOrList, context># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, context># is [code]#true#.
+
+_Effects:_ The same effect as [code]#context(asyncHandler, propList)# except
+that the properties are specified by [code]#props#.
+
+'''
+
+.[apititle]#Constructor with device #
+[source,role=synopsis,id=api:khr-properties-context-ctor-device]
+----
+template <typename PropertyOrList>
+explicit context(const device& dev, PropertyOrList props);
+----
+
+_Constraints:_
+
+* [api]#khr::is_property_for_v<PropertyOrList, context># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, context># is [code]#true#.
+
+_Effects:_ The same effect as [code]#context(dev, propList)# except that the
+properties are specified by [code]#props#.
+
+'''
+
+.[apititle]#Constructor with device and async handler#
+[source,role=synopsis,id=api:khr-properties-context-ctor-device-async-handler]
+----
+template <typename PropertyOrList>
+explicit context(const device& dev, async_handler asyncHandler,
+                 PropertyOrList props);
+----
+
+_Constraints:_
+
+* [api]#khr::is_property_for_v<PropertyOrList, context># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, context># is [code]#true#.
+
+_Effects:_ The same effect as [code]#context(dev, asyncHandler, propList)#
+except that the properties are specified by [code]#props#.
+
+'''
+
+.[apititle]#Constructor with platform#
+[source,role=synopsis,id=api:khr-properties-context-ctor-platform]
+----
+template <typename PropertyOrList>
+explicit context(const platform& plt, PropertyOrList props);
+----
+
+_Constraints:_
+
+* [api]#khr::is_property_for_v<PropertyOrList, context># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, context># is [code]#true#.
+
+_Effects:_ The same effect as [code]#context(plt, propList)# except that the
+properties are specified by [code]#props#.
+
+'''
+
+.[apititle]#Constructor with platform and async handler#
+[source,role=synopsis,id=api:khr-properties-context-ctor-platform-async-handler]
+----
+template <typename PropertyOrList>
+explicit context(const platform& plt, async_handler asyncHandler,
+                 PropertyOrList props);
+----
+
+_Constraints:_
+
+* [api]#khr::is_property_for_v<PropertyOrList, context># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, context># is [code]#true#.
+
+_Effects:_ The same effect as [code]#context(plt, asyncHandler, propList)#
+except that the properties are specified by [code]#props#.
+
+'''
+
+.[apititle]#Constructor with device list#
+[source,role=synopsis,id=api:khr-properties-context-ctor-device-list]
+----
+template <typename PropertyOrList>
+explicit context(const std::vector<device>& deviceList,
+                 PropertyOrList props);
+----
+
+_Constraints:_
+
+* [api]#khr::is_property_for_v<PropertyOrList, context># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, context># is [code]#true#.
+
+_Effects:_ The same effect as [code]#context(deviceList, propList)# except that
+the properties are specified by [code]#props#.
+
+'''
+
+.[apititle]#Constructor with device list and async handler#
+[source,role=synopsis,id=api:khr-properties-context-ctor-device-list-async-handler]
+----
+template <typename PropertyOrList>
+explicit context(const std::vector<device>& deviceList,
+                 async_handler asyncHandler, PropertyOrList props);
+----
+
+_Constraints:_
+
+* [api]#khr::is_property_for_v<PropertyOrList, context># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, context># is [code]#true#.
+
+_Effects:_ The same effect as [code]#context(deviceList, asyncHandler,
+propList)# except that the properties are specified by [code]#props#.
 
 [[sec:khr-properties-queue-additions]]
 == Additions and modifications to the queue class
@@ -468,46 +651,45 @@ this extension.
 namespace sycl {
 
 class queue {
-  template <typename PropertyOrList = khr::empty_properties_t>
-  explicit queue(PropertyOrList props = {});
+  template <typename PropertyOrList>
+  explicit queue(PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
-  explicit queue(const async_handler& asyncHandler,
-                 PropertyOrList props = {});
+  template <typename PropertyOrList>
+  explicit queue(const async_handler& asyncHandler, PropertyOrList props);
 
-  template <typename DeviceSelector, typename PropertyOrList = khr::empty_properties_t>
+  template <typename DeviceSelector, typename PropertyOrList>
   explicit queue(const DeviceSelector& deviceSelector,
-                 PropertyOrList props = {});
+                 PropertyOrList props);
 
-  template <typename DeviceSelector, typename PropertyOrList = khr::empty_properties_t>
+  template <typename DeviceSelector, typename PropertyOrList>
   explicit queue(const DeviceSelector& deviceSelector,
                  const async_handler& asyncHandler,
-                 PropertyOrList props = {});
+                 PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
-  explicit queue(const device& syclDevice, PropertyOrList props = {});
+  template <typename PropertyOrList>
+  explicit queue(const device& syclDevice, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   explicit queue(const device& syclDevice, const async_handler& asyncHandler,
-                 PropertyOrList props = {});
+                 PropertyOrList props);
 
-  template <typename DeviceSelector, typename PropertyOrList = khr::empty_properties_t>
+  template <typename DeviceSelector, typename PropertyOrList>
   explicit queue(const context& syclContext, const DeviceSelector& deviceSelector,
-                 PropertyOrList props = {});
+                 PropertyOrList props);
 
-  template <typename DeviceSelector, typename PropertyOrList = khr::empty_properties_t>
+  template <typename DeviceSelector, typename PropertyOrList>
   explicit queue(const context& syclContext, const DeviceSelector& deviceSelector,
                  const async_handler& asyncHandler,
-                 PropertyOrList props = {});
+                 PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   explicit queue(const context& syclContext, const device& syclDevice,
-                 PropertyOrList props = {});
+                 PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   explicit queue(const context& syclContext, const device& syclDevice,
                  const async_handler& asyncHandler,
-                 PropertyOrList props = {});
+                 PropertyOrList props);
 
   bool is_in_order() const;
 
@@ -524,8 +706,8 @@ class queue {
 .[apititle]#Default constructor#
 [source,role=synopsis,id=api:khr-properties-queue-ctor]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-explicit queue(PropertyOrList props = {});
+template <typename PropertyOrList>
+explicit queue(PropertyOrList props);
 ----
 
 _Constraints:_
@@ -541,9 +723,8 @@ are specified by [code]#props#.
 .[apititle]#Constructor with async handler#
 [source,role=synopsis,id=api:khr-properties-queue-ctor-async-handler]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-explicit queue(const async_handler& asyncHandler,
-               PropertyOrList props = {});
+template <typename PropertyOrList>
+explicit queue(const async_handler& asyncHandler, PropertyOrList props);
 ----
 
 _Constraints:_
@@ -559,9 +740,9 @@ the properties are specified by [code]#props#.
 .[apititle]#Constructor with device selector#
 [source,role=synopsis,id=api:khr-properties-queue-ctor-selector]
 ----
-template <typename DeviceSelector, typename PropertyOrList = khr::empty_properties_t>
+template <typename DeviceSelector, typename PropertyOrList>
 explicit queue(const DeviceSelector& deviceSelector,
-               PropertyOrList props = {});
+               PropertyOrList props);
 ----
 
 _Constraints:_
@@ -579,10 +760,10 @@ that the properties are specified by [code]#props#.
 .[apititle]#Constructor with device selector and async handler#
 [source,role=synopsis,id=api:khr-properties-queue-ctor-selector-async-handler]
 ----
-template <typename DeviceSelector, typename PropertyOrList = khr::empty_properties_t>
+template <typename DeviceSelector, typename PropertyOrList>
 explicit queue(const DeviceSelector& deviceSelector,
                const async_handler& asyncHandler,
-               PropertyOrList props = {});
+               PropertyOrList props);
 ----
 
 _Constraints:_
@@ -600,8 +781,8 @@ propList)# except that the properties are specified by [code]#props#.
 .[apititle]#Constructor with device#
 [source,role=synopsis,id=api:khr-properties-queue-ctor-device]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-explicit queue(const device& syclDevice, PropertyOrList props = {});
+template <typename PropertyOrList>
+explicit queue(const device& syclDevice, PropertyOrList props);
 ----
 
 _Constraints:_
@@ -617,9 +798,9 @@ the properties are specified by [code]#props#.
 .[apititle]#Constructor with device and async handler#
 [source,role=synopsis,id=api:khr-properties-queue-ctor-device-async-handler]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>
 explicit queue(const device& syclDevice, const async_handler& asyncHandler,
-               PropertyOrList props = {});
+               PropertyOrList props);
 ----
 
 _Constraints:_
@@ -635,9 +816,9 @@ except that the properties are specified by [code]#props#.
 .[apititle]#Constructor with context and device selector#
 [source,role=synopsis,id=api:khr-properties-queue-ctor-context-selector]
 ----
-template <typename DeviceSelector, typename PropertyOrList = khr::empty_properties_t>
+template <typename DeviceSelector, typename PropertyOrList>
 explicit queue(const context& syclContext, const DeviceSelector& deviceSelector,
-               PropertyOrList props = {});
+               PropertyOrList props);
 ----
 
 _Constraints:_
@@ -655,10 +836,10 @@ propList)# except that the properties are specified by [code]#props#.
 .[apititle]#Constructor with context, device selector, and async handler#
 [source,role=synopsis,id=api:khr-properties-queue-ctor-context-selector-async-handler]
 ----
-template <typename DeviceSelector, typename PropertyOrList = khr::empty_properties_t>
+template <typename DeviceSelector, typename PropertyOrList>
 explicit queue(const context& syclContext, const DeviceSelector& deviceSelector,
                const async_handler& asyncHandler,
-               PropertyOrList props = {});
+               PropertyOrList props);
 ----
 
 _Constraints:_
@@ -677,9 +858,9 @@ asyncHandler, propList)# except that the properties are specified by
 .[apititle]#Constructor with context and device#
 [source,role=synopsis,id=api:khr-properties-queue-ctor-context-device]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>
 explicit queue(const context& syclContext, const device& syclDevice,
-               PropertyOrList props = {});
+               PropertyOrList props);
 ----
 
 _Constraints:_
@@ -695,10 +876,10 @@ except that the properties are specified by [code]#props#.
 .[apititle]#Constructor with context, device, and async handler#
 [source,role=synopsis,id=api:khr-properties-queue-ctor-context-device-async-handler]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>
 explicit queue(const context& syclContext, const device& syclDevice,
                const async_handler& asyncHandler,
-               PropertyOrList props = {});
+               PropertyOrList props);
 ----
 
 _Constraints:_
@@ -771,13 +952,13 @@ constructed queue.
 
 The following traits inherit from [code]#std::true#:
 
-* [code]#is_property<property::enable_profiling>#
-* [code]#is_property_key<property::key::enable_profiling>#
-* [code]#is_property_for<property::enable_profiling, queue>#
-* [code]#is_property_key_for<property::key::enable_profiling, queue>#
+* [code]#khr::is_property<khr::property::enable_profiling>#
+* [code]#khr::is_property_key<khr::property::key::enable_profiling>#
+* [code]#khr::is_property_for<khr::property::enable_profiling, queue>#
+* [code]#khr::is_property_key_for<khr::property::key::enable_profiling, queue>#
 
-[code]#property::enable_profiling# and [code]#property::key::enable_profiling#
-are trivially copyable.
+[code]#khr::property::enable_profiling# and
+[code]#khr::property::key::enable_profiling# are trivially copyable.
 
 '''
 
@@ -806,13 +987,13 @@ constructed queue.
 
 The following traits inherit from [code]#std::true#:
 
-* [code]#is_property<property::in_order>#
-* [code]#is_property_key<property::key::in_order>#
-* [code]#is_property_for<property::in_order, queue>#
-* [code]#is_property_key_for<property::key::in_order, queue>#
+* [code]#khr::is_property<khr::property::in_order>#
+* [code]#khr::is_property_key<khr::property::key::in_order>#
+* [code]#khr::is_property_for<khr::property::in_order, queue>#
+* [code]#khr::is_property_key_for<khr::property::key::in_order, queue>#
 
-[code]#property::in_order# and [code]#property::key::in_order# are trivially
-copyable.
+[code]#khr::property::in_order# and [code]#khr::property::key::in_order# are
+trivially copyable.
 
 == Additions to the buffer and image classes
 
@@ -831,61 +1012,61 @@ namespace sycl {
 
 template <typename T, int Dimensions, typename AllocatorT>
 class buffer {
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   buffer(const range<Dimensions>& bufferRange, AllocatorT allocator,
-         PropertyOrList props = {});
+         PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
-  buffer(const range<Dimensions>& bufferRange, PropertyOrList props = {});
+  template <typename PropertyOrList>
+  buffer(const range<Dimensions>& bufferRange, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   buffer(T* hostData, const range<Dimensions>& bufferRange,
-         AllocatorT allocator, PropertyOrList props = {});
+         AllocatorT allocator, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   buffer(T* hostData, const range<Dimensions>& bufferRange,
-         PropertyOrList props = {});
+         PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   buffer(const T* hostData, const range<Dimensions>& bufferRange,
-         AllocatorT allocator, PropertyOrList props = {});
+         AllocatorT allocator, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   buffer(const T* hostData, const range<Dimensions>& bufferRange,
-         PropertyOrList props = {});
+         PropertyOrList props);
 
-  template <typename Container, typename PropertyOrList = khr::empty_properties_t>
-  buffer(Container& container, AllocatorT allocator, PropertyOrList props = {});
+  template <typename Container, typename PropertyOrList>
+  buffer(Container& container, AllocatorT allocator, PropertyOrList props);
 
-  template <typename Container, typename PropertyOrList = khr::empty_properties_t>
-  buffer(Container& container, PropertyOrList props = {});
+  template <typename Container, typename PropertyOrList>
+  buffer(Container& container, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   buffer(const std::shared_ptr<T>& hostData,
          const range<Dimensions>& bufferRange, AllocatorT allocator,
-         PropertyOrList props = {});
+         PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   buffer(const std::shared_ptr<T>& hostData,
-         const range<Dimensions>& bufferRange, PropertyOrList props = {});
+         const range<Dimensions>& bufferRange, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   buffer(const std::shared_ptr<T[]>& hostData,
          const range<Dimensions>& bufferRange, AllocatorT allocator,
-         PropertyOrList props = {});
+         PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   buffer(const std::shared_ptr<T[]>& hostData,
-         const range<Dimensions>& bufferRange, PropertyOrList props = {});
+         const range<Dimensions>& bufferRange, PropertyOrList props);
 
   template <typename InputIterator,
-            typename PropertyOrList = khr::empty_properties_t>
+            typename PropertyOrList>
   buffer(InputIterator first, InputIterator last, AllocatorT allocator,
-         PropertyOrList props = {});
+         PropertyOrList props);
 
   template <typename InputIterator,
-            typename PropertyOrList = khr::empty_properties_t>
-  buffer(InputIterator first, InputIterator last, PropertyOrList props = {});
+            typename PropertyOrList>
+  buffer(InputIterator first, InputIterator last, PropertyOrList props);
 
   // ...
 };
@@ -900,12 +1081,12 @@ TODO: Do we need deduction guides?
 .[apititle]#Construct with uninitialized memory#
 [source,role=synopsis,id=api:khr-properties-buffer-ctor-uninit]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-buffer(const range<Dimensions>& bufferRange, AllocatorT allocator,  (1)
-       PropertyOrList props = {});
+template <typename PropertyOrList>                                   (1)
+buffer(const range<Dimensions>& bufferRange, AllocatorT allocator,
+       PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-buffer(const range<Dimensions>& bufferRange, PropertyOrList props = {});  (2)
+template <typename PropertyOrList>                                   (2)
+buffer(const range<Dimensions>& bufferRange, PropertyOrList props);
 ----
 
 _Constraints:_
@@ -924,21 +1105,21 @@ that the properties are specified by [code]#props#.
 .[apititle]#Construct with host memory#
 [source,role=synopsis,id=api:khr-properties-buffer-ctor-host-mem]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-buffer(T* hostData, const range<Dimensions>& bufferRange,          (1)
-       AllocatorT allocator, PropertyOrList props = {});
+template <typename PropertyOrList>                               (1)
+buffer(T* hostData, const range<Dimensions>& bufferRange,
+       AllocatorT allocator, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-buffer(T* hostData, const range<Dimensions>& bufferRange,          (2)
-       PropertyOrList props = {});
+template <typename PropertyOrList>                               (2)
+buffer(T* hostData, const range<Dimensions>& bufferRange,
+       PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-buffer(const T* hostData, const range<Dimensions>& bufferRange,    (3)
-       AllocatorT allocator, PropertyOrList props = {});
+template <typename PropertyOrList>                               (3)
+buffer(const T* hostData, const range<Dimensions>& bufferRange,
+       AllocatorT allocator, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-buffer(const T* hostData, const range<Dimensions>& bufferRange,    (4)
-       PropertyOrList props = {});
+template <typename PropertyOrList>                               (4)
+buffer(const T* hostData, const range<Dimensions>& bufferRange,
+       PropertyOrList props);
 ----
 
 _Constraints:_
@@ -947,15 +1128,14 @@ _Constraints:_
 * [api]#khr::is_property_list_for_v<PropertyOrList, buffer># is [code]#true#.
 
 _Effects (1):_ The same effect as [code]#buffer(hostData, bufferRange,
-allocator, propList)# except that the properties are specified by
-[code]#props#.
+allocator, propList)# except that the properties are specified by [code]#props#.
 
 _Effects (2):_ The same effect as [code]#buffer(hostData, bufferRange,
 propList)# except that the properties are specified by [code]#props#.
 
 _Effects (3):_ The same effect as [code]#buffer(hostData, bufferRange,
-allocator, propList)# (the [code]#const T*# overload) except that the
-properties are specified by [code]#props#.
+allocator, propList)# (the [code]#const T*# overload) except that the properties
+are specified by [code]#props#.
 
 _Effects (4):_ The same effect as [code]#buffer(hostData, bufferRange,
 propList)# (the [code]#const T*# overload) except that the properties are
@@ -966,12 +1146,12 @@ specified by [code]#props#.
 .[apititle]#Construct from a container#
 [source,role=synopsis,id=api:khr-properties-buffer-ctor-container]
 ----
-template <typename Container, typename PropertyOrList = khr::empty_properties_t>
-buffer(Container& container, AllocatorT allocator,                 (1)
-       PropertyOrList props = {});
+template <typename Container, typename PropertyOrList>  (1)
+buffer(Container& container, AllocatorT allocator,
+       PropertyOrList props);
 
-template <typename Container, typename PropertyOrList = khr::empty_properties_t>
-buffer(Container& container, PropertyOrList props = {});           (2)
+template <typename Container, typename PropertyOrList>  (2)
+buffer(Container& container, PropertyOrList props);
 ----
 
 _Constraints:_ The same constraints as the corresponding [code]#buffer#
@@ -980,8 +1160,8 @@ container constructor from the <<core-spec>>, and either
 * [api]#khr::is_property_for_v<PropertyOrList, buffer># is [code]#true#, or
 * [api]#khr::is_property_list_for_v<PropertyOrList, buffer># is [code]#true#.
 
-_Effects (1):_ The same effect as [code]#buffer(container, allocator,
-propList)# except that the properties are specified by [code]#props#.
+_Effects (1):_ The same effect as [code]#buffer(container, allocator, propList)#
+except that the properties are specified by [code]#props#.
 
 _Effects (2):_ The same effect as [code]#buffer(container, propList)# except
 that the properties are specified by [code]#props#.
@@ -991,23 +1171,23 @@ that the properties are specified by [code]#props#.
 .[apititle]#Construct from memory owned by a shared pointer#
 [source,role=synopsis,id=api:khr-properties-buffer-ctor-shared-ptr]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-buffer(const std::shared_ptr<T>& hostData,                         (1)
+template <typename PropertyOrList>                                  (1)
+buffer(const std::shared_ptr<T>& hostData,
        const range<Dimensions>& bufferRange, AllocatorT allocator,
-       PropertyOrList props = {});
+       PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-buffer(const std::shared_ptr<T>& hostData,                         (2)
-       const range<Dimensions>& bufferRange, PropertyOrList props = {});
+template <typename PropertyOrList>                                  (2)
+buffer(const std::shared_ptr<T>& hostData,
+       const range<Dimensions>& bufferRange, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-buffer(const std::shared_ptr<T[]>& hostData,                       (3)
+template <typename PropertyOrList>                                  (3)
+buffer(const std::shared_ptr<T[]>& hostData,
        const range<Dimensions>& bufferRange, AllocatorT allocator,
-       PropertyOrList props = {});
+       PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-buffer(const std::shared_ptr<T[]>& hostData,                       (4)
-       const range<Dimensions>& bufferRange, PropertyOrList props = {});
+template <typename PropertyOrList>                                  (4)
+buffer(const std::shared_ptr<T[]>& hostData,
+       const range<Dimensions>& bufferRange, PropertyOrList props);
 ----
 
 _Constraints:_
@@ -1028,22 +1208,20 @@ allocator, propList)# (the [code]#shared_ptr<T[]># overload) except that the
 properties are specified by [code]#props#.
 
 _Effects (4):_ The same effect as [code]#buffer(hostData, bufferRange,
-propList)# (the [code]#shared_ptr<T[]># overload) except that the properties
-are specified by [code]#props#.
+propList)# (the [code]#shared_ptr<T[]># overload) except that the properties are
+specified by [code]#props#.
 
 '''
 
 .[apititle]#Construct from iterators#
 [source,role=synopsis,id=api:khr-properties-buffer-ctor-iterator]
 ----
-template <typename InputIterator,
-          typename PropertyOrList = khr::empty_properties_t>
-buffer(InputIterator first, InputIterator last, AllocatorT allocator,  (1)
-       PropertyOrList props = {});
+template <typename InputIterator, typename PropertyOrList>              (1)
+buffer(InputIterator first, InputIterator last, AllocatorT allocator,
+       PropertyOrList props);
 
-template <typename InputIterator,
-          typename PropertyOrList = khr::empty_properties_t>
-buffer(InputIterator first, InputIterator last, PropertyOrList props = {});  (2)
+template <typename InputIterator, typename PropertyOrList>              (2)
+buffer(InputIterator first, InputIterator last, PropertyOrList props);
 ----
 
 _Constraints:_
@@ -1060,9 +1238,9 @@ that the properties are specified by [code]#props#.
 [[sec:khr-properties-unsampled-image-constructors]]
 === New unsampled image constructors
 
-This extension adds the following new constructors to the [code]#unsampled_image#
-class, which allow an unsampled image to be constructed with the new style
-properties defined in this extension.
+This extension adds the following new constructors to the
+[code]#unsampled_image# class, which allow an unsampled image to be constructed
+with the new style properties defined in this extension.
 
 '''
 
@@ -1072,62 +1250,62 @@ namespace sycl {
 
 template <int Dimensions = 1, typename AllocatorT = image_allocator>
 class unsampled_image {
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(image_format format, const range<Dimensions>& rangeRef,
-                  PropertyOrList props = {});
+                  PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(image_format format, const range<Dimensions>& rangeRef,
-                  AllocatorT allocator, PropertyOrList props = {});
+                  AllocatorT allocator, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(image_format format, const range<Dimensions>& rangeRef,
-                  const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+                  const range<Dimensions - 1>& pitch, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(image_format format, const range<Dimensions>& rangeRef,
                   const range<Dimensions - 1>& pitch, AllocatorT allocator,
-                  PropertyOrList props = {});
+                  PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(void* hostPointer, image_format format,
-                  const range<Dimensions>& rangeRef, PropertyOrList props = {});
+                  const range<Dimensions>& rangeRef, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(void* hostPointer, image_format format,
                   const range<Dimensions>& rangeRef, AllocatorT allocator,
-                  PropertyOrList props = {});
+                  PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(void* hostPointer, image_format format,
                   const range<Dimensions>& rangeRef,
-                  const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+                  const range<Dimensions - 1>& pitch, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(void* hostPointer, image_format format,
                   const range<Dimensions>& rangeRef,
                   const range<Dimensions - 1>& pitch, AllocatorT allocator,
-                  PropertyOrList props = {});
+                  PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
-                  const range<Dimensions>& rangeRef, PropertyOrList props = {});
+                  const range<Dimensions>& rangeRef, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
                   const range<Dimensions>& rangeRef, AllocatorT allocator,
-                  PropertyOrList props = {});
+                  PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
                   const range<Dimensions>& rangeRef,
-                  const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+                  const range<Dimensions - 1>& pitch, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
                   const range<Dimensions>& rangeRef,
                   const range<Dimensions - 1>& pitch, AllocatorT allocator,
-                  PropertyOrList props = {});
+                  PropertyOrList props);
 
   // ...
 };
@@ -1140,29 +1318,29 @@ class unsampled_image {
 .[apititle]#Construct with uninitialized memory#
 [source,role=synopsis,id=api:khr-properties-unsampled-image-ctor-uninit]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(image_format format, const range<Dimensions>& rangeRef,  (1)
-                PropertyOrList props = {});
+template <typename PropertyOrList>                                          (1)
+unsampled_image(image_format format, const range<Dimensions>& rangeRef,
+                PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(image_format format, const range<Dimensions>& rangeRef,  (2)
-                AllocatorT allocator, PropertyOrList props = {});
+template <typename PropertyOrList>                                          (2)
+unsampled_image(image_format format, const range<Dimensions>& rangeRef,
+                AllocatorT allocator, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(image_format format, const range<Dimensions>& rangeRef,  (3)
-                const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+template <typename PropertyOrList>                                          (3)
+unsampled_image(image_format format, const range<Dimensions>& rangeRef,
+                const range<Dimensions - 1>& pitch, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(image_format format, const range<Dimensions>& rangeRef,  (4)
+template <typename PropertyOrList>                                          (4)
+unsampled_image(image_format format, const range<Dimensions>& rangeRef,
                 const range<Dimensions - 1>& pitch, AllocatorT allocator,
-                PropertyOrList props = {});
+                PropertyOrList props);
 ----
 
-_Constraints:_ Overloads (3) and (4) are available only when
-[code]#Dimensions > 1#, and for all overloads either
+_Constraints:_ Overloads (3) and (4) are available only when [code]#Dimensions >
+1#, and for all overloads either
 
-* [api]#khr::is_property_for_v<PropertyOrList, unsampled_image># is [code]#true#,
-  or
+* [api]#khr::is_property_for_v<PropertyOrList, unsampled_image># is
+  [code]#true#, or
 * [api]#khr::is_property_list_for_v<PropertyOrList, unsampled_image># is
   [code]#true#.
 
@@ -1175,32 +1353,32 @@ properties are specified by [code]#props#.
 .[apititle]#Construct with host memory#
 [source,role=synopsis,id=api:khr-properties-unsampled-image-ctor-host-mem]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(void* hostPointer, image_format format,                  (1)
-                const range<Dimensions>& rangeRef, PropertyOrList props = {});
+template <typename PropertyOrList>                                          (1)
+unsampled_image(void* hostPointer, image_format format,
+                const range<Dimensions>& rangeRef, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(void* hostPointer, image_format format,                  (2)
+template <typename PropertyOrList>                                          (2)
+unsampled_image(void* hostPointer, image_format format,
                 const range<Dimensions>& rangeRef, AllocatorT allocator,
-                PropertyOrList props = {});
+                PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(void* hostPointer, image_format format,                  (3)
+template <typename PropertyOrList>                                          (3)
+unsampled_image(void* hostPointer, image_format format,
                 const range<Dimensions>& rangeRef,
-                const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+                const range<Dimensions - 1>& pitch, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(void* hostPointer, image_format format,                  (4)
+template <typename PropertyOrList>                                          (4)
+unsampled_image(void* hostPointer, image_format format,
                 const range<Dimensions>& rangeRef,
                 const range<Dimensions - 1>& pitch, AllocatorT allocator,
-                PropertyOrList props = {});
+                PropertyOrList props);
 ----
 
-_Constraints:_ Overloads (3) and (4) are available only when
-[code]#Dimensions > 1#, and for all overloads either
+_Constraints:_ Overloads (3) and (4) are available only when [code]#Dimensions >
+1#, and for all overloads either
 
-* [api]#khr::is_property_for_v<PropertyOrList, unsampled_image># is [code]#true#,
-  or
+* [api]#khr::is_property_for_v<PropertyOrList, unsampled_image># is
+  [code]#true#, or
 * [api]#khr::is_property_list_for_v<PropertyOrList, unsampled_image># is
   [code]#true#.
 
@@ -1213,32 +1391,32 @@ are specified by [code]#props#.
 .[apititle]#Construct from memory owned by a shared pointer#
 [source,role=synopsis,id=api:khr-properties-unsampled-image-ctor-shared-ptr]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,  (1)
-                const range<Dimensions>& rangeRef, PropertyOrList props = {});
+template <typename PropertyOrList>                                          (1)
+unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
+                const range<Dimensions>& rangeRef, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,  (2)
+template <typename PropertyOrList>                                          (2)
+unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
                 const range<Dimensions>& rangeRef, AllocatorT allocator,
-                PropertyOrList props = {});
+                PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,  (3)
+template <typename PropertyOrList>                                          (3)
+unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
                 const range<Dimensions>& rangeRef,
-                const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+                const range<Dimensions - 1>& pitch, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,  (4)
+template <typename PropertyOrList>                                          (4)
+unsampled_image(std::shared_ptr<void>& hostPointer, image_format format,
                 const range<Dimensions>& rangeRef,
                 const range<Dimensions - 1>& pitch, AllocatorT allocator,
-                PropertyOrList props = {});
+                PropertyOrList props);
 ----
 
-_Constraints:_ Overloads (3) and (4) are available only when
-[code]#Dimensions > 1#, and for all overloads either
+_Constraints:_ Overloads (3) and (4) are available only when [code]#Dimensions >
+1#, and for all overloads either
 
-* [api]#khr::is_property_for_v<PropertyOrList, unsampled_image># is [code]#true#,
-  or
+* [api]#khr::is_property_for_v<PropertyOrList, unsampled_image># is
+  [code]#true#, or
 * [api]#khr::is_property_list_for_v<PropertyOrList, unsampled_image># is
   [code]#true#.
 
@@ -1261,47 +1439,47 @@ namespace sycl {
 
 template <int Dimensions = 1, typename AllocatorT = image_allocator>
 class sampled_image {
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   sampled_image(const void* hostPointer, image_format format,
                 image_sampler sampler, const range<Dimensions>& rangeRef,
-                PropertyOrList props = {});
+                PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   sampled_image(const void* hostPointer, image_format format,
                 image_sampler sampler, const range<Dimensions>& rangeRef,
-                AllocatorT allocator, PropertyOrList props = {});
+                AllocatorT allocator, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   sampled_image(const void* hostPointer, image_format format,
                 image_sampler sampler, const range<Dimensions>& rangeRef,
-                const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+                const range<Dimensions - 1>& pitch, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   sampled_image(const void* hostPointer, image_format format,
                 image_sampler sampler, const range<Dimensions>& rangeRef,
                 const range<Dimensions - 1>& pitch, AllocatorT allocator,
-                PropertyOrList props = {});
+                PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   sampled_image(std::shared_ptr<const void>& hostPointer, image_format format,
                 image_sampler sampler, const range<Dimensions>& rangeRef,
-                PropertyOrList props = {});
+                PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   sampled_image(std::shared_ptr<const void>& hostPointer, image_format format,
                 image_sampler sampler, const range<Dimensions>& rangeRef,
-                AllocatorT allocator, PropertyOrList props = {});
+                AllocatorT allocator, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   sampled_image(std::shared_ptr<const void>& hostPointer, image_format format,
                 image_sampler sampler, const range<Dimensions>& rangeRef,
-                const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+                const range<Dimensions - 1>& pitch, PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   sampled_image(std::shared_ptr<const void>& hostPointer, image_format format,
                 image_sampler sampler, const range<Dimensions>& rangeRef,
                 const range<Dimensions - 1>& pitch, AllocatorT allocator,
-                PropertyOrList props = {});
+                PropertyOrList props);
 
   // ...
 };
@@ -1314,30 +1492,30 @@ class sampled_image {
 .[apititle]#Construct with host memory#
 [source,role=synopsis,id=api:khr-properties-sampled-image-ctor-host-mem]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-sampled_image(const void* hostPointer, image_format format,              (1)
+template <typename PropertyOrList>                                        (1)
+sampled_image(const void* hostPointer, image_format format,
               image_sampler sampler, const range<Dimensions>& rangeRef,
-              PropertyOrList props = {});
+              PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-sampled_image(const void* hostPointer, image_format format,              (2)
+template <typename PropertyOrList>                                        (2)
+sampled_image(const void* hostPointer, image_format format,
               image_sampler sampler, const range<Dimensions>& rangeRef,
-              AllocatorT allocator, PropertyOrList props = {});
+              AllocatorT allocator, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-sampled_image(const void* hostPointer, image_format format,              (3)
+template <typename PropertyOrList>                                        (3)
+sampled_image(const void* hostPointer, image_format format,
               image_sampler sampler, const range<Dimensions>& rangeRef,
-              const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+              const range<Dimensions - 1>& pitch, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-sampled_image(const void* hostPointer, image_format format,              (4)
+template <typename PropertyOrList>                                        (4)
+sampled_image(const void* hostPointer, image_format format,
               image_sampler sampler, const range<Dimensions>& rangeRef,
               const range<Dimensions - 1>& pitch, AllocatorT allocator,
-              PropertyOrList props = {});
+              PropertyOrList props);
 ----
 
-_Constraints:_ Overloads (3) and (4) are available only when
-[code]#Dimensions > 1#, and for all overloads either
+_Constraints:_ Overloads (3) and (4) are available only when [code]#Dimensions >
+1#, and for all overloads either
 
 * [api]#khr::is_property_for_v<PropertyOrList, sampled_image># is [code]#true#,
   or
@@ -1353,33 +1531,33 @@ are specified by [code]#props#.
 .[apititle]#Construct from memory owned by a shared pointer#
 [source,role=synopsis,id=api:khr-properties-sampled-image-ctor-shared-ptr]
 ----
-template <typename PropertyOrList = khr::empty_properties_t>
-sampled_image(std::shared_ptr<const void>& hostPointer,                  (1)
+template <typename PropertyOrList>                                        (1)
+sampled_image(std::shared_ptr<const void>& hostPointer,
               image_format format, image_sampler sampler,
-              const range<Dimensions>& rangeRef, PropertyOrList props = {});
+              const range<Dimensions>& rangeRef, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-sampled_image(std::shared_ptr<const void>& hostPointer,                  (2)
+template <typename PropertyOrList>                                        (2)
+sampled_image(std::shared_ptr<const void>& hostPointer,
               image_format format, image_sampler sampler,
               const range<Dimensions>& rangeRef, AllocatorT allocator,
-              PropertyOrList props = {});
+              PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-sampled_image(std::shared_ptr<const void>& hostPointer,                  (3)
+template <typename PropertyOrList>                                        (3)
+sampled_image(std::shared_ptr<const void>& hostPointer,
               image_format format, image_sampler sampler,
               const range<Dimensions>& rangeRef,
-              const range<Dimensions - 1>& pitch, PropertyOrList props = {});
+              const range<Dimensions - 1>& pitch, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-sampled_image(std::shared_ptr<const void>& hostPointer,                  (4)
+template <typename PropertyOrList>                                        (4)
+sampled_image(std::shared_ptr<const void>& hostPointer,
               image_format format, image_sampler sampler,
               const range<Dimensions>& rangeRef,
               const range<Dimensions - 1>& pitch, AllocatorT allocator,
-              PropertyOrList props = {});
+              PropertyOrList props);
 ----
 
-_Constraints:_ Overloads (3) and (4) are available only when
-[code]#Dimensions > 1#, and for all overloads either
+_Constraints:_ Overloads (3) and (4) are available only when [code]#Dimensions >
+1#, and for all overloads either
 
 * [api]#khr::is_property_for_v<PropertyOrList, sampled_image># is [code]#true#,
   or
@@ -1545,25 +1723,19 @@ The following traits inherit from [code]#std::true#:
 [[sec:khr-properties-usm-additions]]
 == Additions to the USM functions
 
-This extension adds new property-accepting overloads to the [code]#usm_allocator#
-constructors and to the USM allocation functions.
+[[sec:khr-properties-usm-property-tags]]
+=== New property tag types
 
-Most of the USM allocation entry points are free functions, which are not classes,
-so this extension defines an empty tag type
-[code]#khr::property::tag::usm_allocation# to serve as the [code]#Class#
-parameter of the [api]#khr::is_property_for# trait for properties that can be
-used with the USM allocator and the USM allocation functions.
-Tag types are declared in the nested namespace [code]#sycl::khr::property::tag#,
-next to the property keys in [code]#sycl::khr::property::key#, so that their
-names cannot shadow names in namespace [code]#sycl#.
+This extension adds the following property tag types, which are used to classify
+properties that can be used with the USM allocation functions.
 
-'''
-
-[source,role=synopsis,id=api:khr-properties-usm-allocation-tag]
+[source,role=synopsis,id=api:khr-properties-usm-allocation-tags]
 ----
 namespace sycl::khr::property::tag {
 
-struct usm_allocation; // tag type, never defined
+struct usm_device;
+struct usm_host;
+struct usm_shared;
 
 } // namespace sycl::khr::property::tag
 ----
@@ -1583,12 +1755,12 @@ namespace sycl {
 
 template <typename T, usm::alloc AllocKind, std::size_t Alignment = 0>
 class usm_allocator {
-  template <typename PropertyOrList = khr::empty_properties_t>
-  usm_allocator(const context& syclContext, const device& syclDevice,  // (1)
-                PropertyOrList props = {});
+  template <typename PropertyOrList>
+  usm_allocator(const context& syclContext, const device& syclDevice,
+                PropertyOrList props);
 
-  template <typename PropertyOrList = khr::empty_properties_t>
-  usm_allocator(const queue& syclQueue, PropertyOrList props = {});     // (2)
+  template <typename PropertyOrList>
+  usm_allocator(const queue& syclQueue, PropertyOrList props);
 
   // ...
 };
@@ -1596,14 +1768,28 @@ class usm_allocator {
 } // namespace sycl
 ----
 
-_Constraints:_ For both overloads, either
+_Constraints:_
 
-* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_allocation>#
+* [code]#AllocKind# is [code]#usm::alloc::device# and
+  [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_device>#
   is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::usm_allocation>#
-  is [code]#true#.
+* [code]#AllocKind# is [code]#usm::alloc::host# and
+  [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_host>#
+  is [code]#true#, or
+* [code]#AllocKind# is [code]#usm::alloc::shared# and
+  [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_shared>#
+  is [code]#true#, or
+* [code]#AllocKind# is [code]#usm::alloc::device# and
+  [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_device># is [code]#true#, or
+* [code]#AllocKind# is [code]#usm::alloc::host# and
+  [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_host># is [code]#true#, or
+* [code]#AllocKind# is [code]#usm::alloc::shared# and
+  [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_shared># is [code]#true#.
 
-_Effects (1)-(2):_ The same effect as the corresponding [code]#usm_allocator#
+_Effects:_ The same effect as the corresponding [code]#usm_allocator#
 constructor from the <<core-spec>> except that the properties are specified by
 [code]#props#.
 
@@ -1613,44 +1799,61 @@ constructor from the <<core-spec>> except that the properties are specified by
 This extension adds the following new overloads of the device USM allocation
 functions.
 
-TODO: Missing overloads with "count"
-
 '''
 
 [source,role=synopsis,id=api:khr-properties-usm-malloc-device]
 ----
 namespace sycl {
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* malloc_device(std::size_t numBytes, const device& syclDevice,       // (1)
-                    const context& syclContext, PropertyOrList props = {});
+template <typename PropertyOrList>
+void* malloc_device(std::size_t numBytes, const device& syclDevice,
+                    const context& syclContext, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* malloc_device(std::size_t numBytes, const queue& syclQueue,         // (2)
-                    PropertyOrList props = {});
+template <typename T, typename PropertyOrList>
+T* sycl::malloc_device(std::size_t count, const device& syclDevice,
+                       const context& syclContext,
+                       PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* aligned_alloc_device(std::size_t alignment, std::size_t numBytes,   // (3)
+template <typename PropertyOrList>
+void* malloc_device(std::size_t numBytes, const queue& syclQueue,
+                    PropertyOrList props);
+
+template <typename T, typename PropertyOrList>
+T* sycl::malloc_device(std::size_t count, const queue& syclQueue,
+                       PropertyOrList props);
+
+template <typename PropertyOrList>
+void* aligned_alloc_device(std::size_t alignment, std::size_t numBytes,
                            const device& syclDevice, const context& syclContext,
-                           PropertyOrList props = {});
+                           PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* aligned_alloc_device(std::size_t alignment, std::size_t numBytes,   // (4)
-                           const queue& syclQueue, PropertyOrList props = {});
+template <typename T, typename PropertyOrList>
+T* sycl::aligned_alloc_device(std::size_t alignment, std::size_t count,
+                              const device& syclDevice,
+                              const context& syclContext,
+                              PropertyOrList props);
+
+template <typename PropertyOrList>
+void* aligned_alloc_device(std::size_t alignment, std::size_t numBytes,
+                           const queue& syclQueue, PropertyOrList props);
+
+template <typename T, typename PropertyOrList>
+T* sycl::aligned_alloc_device(std::size_t alignment, std::size_t count,
+                              const queue& syclQueue,
+                              PropertyOrList props)
 
 } // namespace sycl
 ----
 
-_Constraints:_ For all overloads, either
+_Constraints:_
 
-* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_allocation>#
+* [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_device>#
   is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::usm_allocation>#
-  is [code]#true#.
+* [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_device># is [code]#true#.
 
-_Effects (1)-(4):_ The same effect as the corresponding device USM allocation
-function from the <<core-spec>> except that the properties are specified by
-[code]#props#.
+_Effects:_ The same as the corresponding device USM allocation function from the
+<<core-spec>> except that the properties are specified by [code]#props#.
 
 [[sec:khr-properties-usm-host-allocs]]
 === New host allocation functions
@@ -1658,42 +1861,58 @@ function from the <<core-spec>> except that the properties are specified by
 This extension adds the following new overloads of the host USM allocation
 functions.
 
-TODO: Missing overloads with "count"
-
 '''
 
 [source,role=synopsis,id=api:khr-properties-usm-malloc-host]
 ----
 namespace sycl {
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* malloc_host(std::size_t numBytes, const context& syclContext,       // (1)
-                  PropertyOrList props = {});
+template <typename PropertyOrList>
+void* malloc_host(std::size_t numBytes, const context& syclContext,
+                  PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* malloc_host(std::size_t numBytes, const queue& syclQueue,           // (2)
-                  PropertyOrList props = {});
+template <typename T, typename PropertyOrList>
+T* sycl::malloc_host(std::size_t count, const context& syclContext,
+                     PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* aligned_alloc_host(std::size_t alignment, std::size_t numBytes,     // (3)
-                         const context& syclContext, PropertyOrList props = {});
+template <typename PropertyOrList>
+void* malloc_host(std::size_t numBytes, const queue& syclQueue,
+                  PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* aligned_alloc_host(std::size_t alignment, std::size_t numBytes,     // (4)
-                         const queue& syclQueue, PropertyOrList props = {});
+template <typename T, typename PropertyOrList>
+T* sycl::malloc_host(std::size_t count, const queue& syclQueue,
+                     PropertyOrList props);
+
+template <typename PropertyOrList>
+void* aligned_alloc_host(std::size_t alignment, std::size_t numBytes,
+                         const context& syclContext, PropertyOrList props);
+
+template <typename T, typename PropertyOrList>
+T* sycl::aligned_alloc_host(std::size_t alignment, std::size_t count,
+                            const context& syclContext,
+                            PropertyOrList props);
+
+template <typename PropertyOrList>
+void* aligned_alloc_host(std::size_t alignment, std::size_t numBytes,
+                         const queue& syclQueue, PropertyOrList props);
+
+template <typename T, typename PropertyOrList>
+T* sycl::aligned_alloc_host(std::size_t alignment, std::size_t count,
+                               const queue& syclQueue,
+                               PropertyOrList props);
 
 } // namespace sycl
 ----
 
-_Constraints:_ For all overloads, either
+_Constraints:_
 
-* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_allocation>#
+* [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_host>#
   is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::usm_allocation>#
-  is [code]#true#.
+* [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_host># is [code]#true#.
 
-_Effects (1)-(4):_ The same effect as the corresponding host USM allocation
-function from the <<core-spec>> except that the properties are specified by
+_Effects:_ The same effect as the corresponding host USM allocation function
+from the <<core-spec>> except that the properties are specified by
 [code]#props#.
 
 [[sec:khr-properties-usm-shared-allocs]]
@@ -1702,43 +1921,61 @@ function from the <<core-spec>> except that the properties are specified by
 This extension adds the following new overloads of the shared USM allocation
 functions.
 
-TODO: Missing overloads with "count"
-
 '''
 
 [source,role=synopsis,id=api:khr-properties-usm-malloc-shared]
 ----
 namespace sycl {
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* malloc_shared(std::size_t numBytes, const device& syclDevice,       // (1)
-                    const context& syclContext, PropertyOrList props = {});
+template <typename PropertyOrList>
+void* malloc_shared(std::size_t numBytes, const device& syclDevice,
+                    const context& syclContext, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* malloc_shared(std::size_t numBytes, const queue& syclQueue,         // (2)
-                    PropertyOrList props = {});
+template <typename T, typename PropertyOrList>
+T* sycl::malloc_shared(std::size_t count, const device& syclDevice,
+                       const context& syclContext,
+                       PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* aligned_alloc_shared(std::size_t alignment, std::size_t numBytes,   // (3)
+template <typename PropertyOrList>
+void* malloc_shared(std::size_t numBytes, const queue& syclQueue,
+                    PropertyOrList props);
+
+template <typename T, typename PropertyOrList>
+T* sycl::malloc_shared(std::size_t count, const queue& syclQueue,
+                       PropertyOrList props);
+
+template <typename PropertyOrList>
+void* aligned_alloc_shared(std::size_t alignment, std::size_t numBytes,
                            const device& syclDevice, const context& syclContext,
-                           PropertyOrList props = {});
+                           PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* aligned_alloc_shared(std::size_t alignment, std::size_t numBytes,   // (4)
-                           const queue& syclQueue, PropertyOrList props = {});
+template <typename T, typename PropertyOrList>
+T* sycl::aligned_alloc_shared(std::size_t alignment, std::size_t count,
+                              const device& syclDevice,
+                              const context& syclContext,
+                              PropertyOrList props);
+
+template <typename PropertyOrList>
+void* aligned_alloc_shared(std::size_t alignment, std::size_t numBytes,
+                           const queue& syclQueue, PropertyOrList props);
+
+template <typename T, typename PropertyOrList>
+T* sycl::aligned_alloc_shared(std::size_t alignment, std::size_t count,
+                              const queue& syclQueue,
+                              PropertyOrList props);
 
 } // namespace sycl
 ----
 
-_Constraints:_ For all overloads, either
+_Constraints:_
 
-* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_allocation>#
+* [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_shared>#
   is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::usm_allocation>#
-  is [code]#true#.
+* [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_shared># is [code]#true#.
 
-_Effects (1)-(4):_ The same effect as the corresponding shared USM allocation
-function from the <<core-spec>> except that the properties are specified by
+_Effects:_ The same effect as the corresponding shared USM allocation function
+from the <<core-spec>> except that the properties are specified by
 [code]#props#.
 
 [[sec:khr-properties-usm-parameterized-allocs]]
@@ -1748,54 +1985,95 @@ This extension adds the following new overloads of the parameterized USM
 allocation functions, which select the kind of allocation through a
 [code]#usm::alloc# parameter.
 
-TODO: Missing overloads with "count"
-
 '''
 
 [source,role=synopsis,id=api:khr-properties-usm-malloc]
 ----
 namespace sycl {
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* malloc(std::size_t numBytes, const device& syclDevice,             // (1)
+template <typename PropertyOrList>
+void* malloc(std::size_t numBytes, const device& syclDevice,
              const context& syclContext, usm::alloc kind,
-             PropertyOrList props = {});
+             PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* malloc(std::size_t numBytes, const queue& syclQueue, usm::alloc kind, // (2)
-             PropertyOrList props = {});
+template <typename T, typename PropertyOrList>
+T* sycl::malloc(std::size_t count, const device& syclDevice,
+                const context& syclContext, usm::alloc kind,
+                PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* aligned_alloc(std::size_t alignment, std::size_t numBytes,         // (3)
+template <typename PropertyOrList>
+void* malloc(std::size_t numBytes, const queue& syclQueue, usm::alloc kind,
+             PropertyOrList props);
+
+template <typename T, typename PropertyOrList>
+T* sycl::malloc(std::size_t count, const queue& syclQueue, usm::alloc kind,
+                PropertyOrList props);
+
+template <typename PropertyOrList>
+void* aligned_alloc(std::size_t alignment, std::size_t numBytes,
                     const device& syclDevice, const context& syclContext,
-                    usm::alloc kind, PropertyOrList props = {});
+                    usm::alloc kind, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
-void* aligned_alloc(std::size_t alignment, std::size_t numBytes,         // (4)
+template <typename T, typename PropertyOrList>
+T* sycl::aligned_alloc(std::size_t alignment, std::size_t count,
+                       const device& syclDevice, const context& syclContext,
+                       usm::alloc kind, PropertyOrList props);
+
+template <typename PropertyOrList>
+void* aligned_alloc(std::size_t alignment, std::size_t numBytes,
                     const queue& syclQueue, usm::alloc kind,
-                    PropertyOrList props = {});
+                    PropertyOrList props);
+
+template <typename T, typename PropertyOrList>
+T* sycl::aligned_alloc(std::size_t alignment, std::size_t count,
+                       const queue& syclQueue, usm::alloc kind,
+                       PropertyOrList props);
 
 } // namespace sycl
 ----
 
-_Constraints:_ For all overloads, either
+_Constraints:_
 
-* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_allocation>#
+* [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_device>#
   is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::usm_allocation>#
-  is [code]#true#.
+* [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_host>#
+  is [code]#true#, or
+* [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_shared>#
+  is [code]#true#, or
+* [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_device># is [code]#true#, or
+* [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_host># is [code]#true#, or
+* [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_shared># is [code]#true#.
 
-_Effects (1)-(4):_ The same effect as the corresponding parameterized USM
-allocation function from the <<core-spec>> except that the properties are
-specified by [code]#props#.
+_Effects:_ The same effect as the corresponding parameterized USM allocation
+function from the <<core-spec>> except that the properties are specified by
+[code]#props#.
+
+_Throws:_
+
+* An [code]#exception# with error code [code]#errc::invalid# if [code]#kind# is
+  [code]#usm::alloc::device# and both
+  [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_device>#
+  and [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_device># are [code]#false#.
+* An [code]#exception# with error code [code]#errc::invalid# if [code]#kind# is
+  [code]#usm::alloc::host# and both
+  [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_host>#
+  and [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_host># are [code]#false#.
+* An [code]#exception# with error code [code]#errc::invalid# if [code]#kind# is
+  [code]#usm::alloc::shared# and both
+  [code]#khr::is_property_for_v<PropertyOrList, khr::property::tag::usm_shared>#
+  and [code]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::usm_shared># are [code]#false#.
 
 [[sec:khr-properties-usm-properties]]
 === New USM properties
 
-This extension defines no USM property.
-The overloads above are added so that a future USM property (defined by the
-<<core-spec>> or by another extension) can be passed through the new style
-[code]#properties# mechanism.
+This extension defines no USM allocation properties.
+The overloads above are added for extensibility.
 
 == Additions to the reduction interface
 
@@ -1831,36 +2109,32 @@ struct reduction; // tag type, never defined
 ----
 namespace sycl {
 
-template <typename BufferT, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
+template <typename BufferT, typename BinaryOperation, typename PropertyOrList>
 __unspecified__ reduction(BufferT vars, handler& cgh, BinaryOperation combiner,
-                          PropertyOrList props = {});
+                          PropertyOrList props);
 
-template <typename T, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
+template <typename T, typename BinaryOperation, typename PropertyOrList>
 __unspecified__ reduction(T* var, BinaryOperation combiner,
-                          PropertyOrList props = {});
+                          PropertyOrList props);
 
 template <typename T, typename Extent, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
+          typename PropertyOrList>
 __unspecified__ reduction(span<T, Extent> vars, BinaryOperation combiner,
-                          PropertyOrList props = {});
+                          PropertyOrList props);
 
-template <typename BufferT, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
+template <typename BufferT, typename BinaryOperation, typename PropertyOrList>
 __unspecified__ reduction(BufferT vars, handler& cgh,
                           const BufferT::value_type& identity,
-                          BinaryOperation combiner, PropertyOrList props = {});
+                          BinaryOperation combiner, PropertyOrList props);
 
-template <typename T, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
+template <typename T, typename BinaryOperation, typename PropertyOrList>
 __unspecified__ reduction(T* var, const T& identity, BinaryOperation combiner,
-                          PropertyOrList props = {});
+                          PropertyOrList props);
 
 template <typename T, typename Extent, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
+          typename PropertyOrList>
 __unspecified__ reduction(span<T, Extent> vars, const T& identity,
-                          BinaryOperation combiner, PropertyOrList props = {});
+                          BinaryOperation combiner, PropertyOrList props);
 
 } // namespace sycl
 ----
@@ -1870,29 +2144,27 @@ __unspecified__ reduction(span<T, Extent> vars, const T& identity,
 .[apititle]#Reduction without an identity value#
 [source,role=synopsis,id=api:khr-properties-reduction-no-identity]
 ----
-template <typename BufferT, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
-__unspecified__ reduction(BufferT vars, handler& cgh,              (1)
-                          BinaryOperation combiner, PropertyOrList props = {});
+template <typename BufferT, typename BinaryOperation, typename PropertyOrList>   (1)
+__unspecified__ reduction(BufferT vars, handler& cgh, BinaryOperation combiner,
+                          PropertyOrList props);
 
-template <typename T, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
-__unspecified__ reduction(T* var, BinaryOperation combiner,        (2)
-                          PropertyOrList props = {});
+template <typename T, typename BinaryOperation, typename PropertyOrList>         (2)
+__unspecified__ reduction(T* var, BinaryOperation combiner,
+                          PropertyOrList props);
 
-template <typename T, typename Extent, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
-__unspecified__ reduction(span<T, Extent> vars,                    (3)
-                          BinaryOperation combiner, PropertyOrList props = {});
+template <typename T, typename Extent, typename BinaryOperation,                 (3)
+          typename PropertyOrList>
+__unspecified__ reduction(span<T, Extent> vars, BinaryOperation combiner,
+                          PropertyOrList props);
 ----
 
-_Constraints:_ Overload (3) is available only when
-[code]#Extent != sycl::dynamic_extent#, and for all overloads either
+_Constraints:_ Overload (3) is available only when [code]#Extent !=
+sycl::dynamic_extent#, and for all overloads either
 
 * [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::reduction>#
   is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::reduction>#
-  is [code]#true#.
+* [api]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::reduction># is [code]#true#.
 
 _Effects (1)-(3):_ The same effect as the corresponding [code]#reduction#
 overload without an identity value from the <<core-spec>> except that the
@@ -1903,30 +2175,28 @@ properties are specified by [code]#props#.
 .[apititle]#Reduction with an identity value#
 [source,role=synopsis,id=api:khr-properties-reduction-identity]
 ----
-template <typename BufferT, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
-__unspecified__ reduction(BufferT vars, handler& cgh,             (1)
+template <typename BufferT, typename BinaryOperation, typename PropertyOrList>  (1)
+__unspecified__ reduction(BufferT vars, handler& cgh,
                           const BufferT::value_type& identity,
-                          BinaryOperation combiner, PropertyOrList props = {});
+                          BinaryOperation combiner, PropertyOrList props);
 
-template <typename T, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
-__unspecified__ reduction(T* var, const T& identity,             (2)
-                          BinaryOperation combiner, PropertyOrList props = {});
+template <typename T, typename BinaryOperation, typename PropertyOrList>        (2)
+__unspecified__ reduction(T* var, const T& identity, BinaryOperation combiner,
+                          PropertyOrList props);
 
-template <typename T, typename Extent, typename BinaryOperation,
-          typename PropertyOrList = khr::empty_properties_t>
-__unspecified__ reduction(span<T, Extent> vars, const T& identity,  (3)
-                          BinaryOperation combiner, PropertyOrList props = {});
+template <typename T, typename Extent, typename BinaryOperation,                (3)
+          typename PropertyOrList>
+__unspecified__ reduction(span<T, Extent> vars, const T& identity,
+                          BinaryOperation combiner, PropertyOrList props);
 ----
 
-_Constraints:_ Overload (3) is available only when
-[code]#Extent != sycl::dynamic_extent#, and for all overloads either
+_Constraints:_ Overload (3) is available only when [code]#Extent !=
+sycl::dynamic_extent#, and for all overloads either
 
 * [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::reduction>#
   is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::reduction>#
-  is [code]#true#.
+* [api]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::reduction># is [code]#true#.
 
 _Effects (1)-(3):_ The same effect as the corresponding [code]#reduction#
 overload with an identity value from the <<core-spec>> except that the
@@ -1965,15 +2235,15 @@ reduction.
 
 The following traits inherit from [code]#std::true#:
 
-* [code]#is_property<property::initialize_to_identity>#
-* [code]#is_property_key<property::key::initialize_to_identity>#
-* [code]#is_property_for<property::initialize_to_identity,
-  property::tag::reduction>#
-* [code]#is_property_key_for<property::key::initialize_to_identity,
-  property::tag::reduction>#
+* [code]#khr::is_property<khr::property::initialize_to_identity>#
+* [code]#khr::is_property_key<khr::property::key::initialize_to_identity>#
+* [code]#khr::is_property_for<khr::property::initialize_to_identity,
+  khr::property::tag::reduction>#
+* [code]#khr::is_property_key_for<khr::property::key::initialize_to_identity,
+  khr::property::tag::reduction>#
 
-[code]#property::initialize_to_identity# and
-[code]#property::key::initialize_to_identity# are trivially copyable.
+[code]#khr::property::initialize_to_identity# and
+[code]#khr::property::key::initialize_to_identity# are trivially copyable.
 
 [[sec:khr-properties-kernel-bundle-additions]]
 == Additions to the kernel bundle functions
@@ -2012,28 +2282,29 @@ This extension adds the following new overloads of the [code]#compile# function.
 ----
 namespace sycl {
 
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>                               (1)
 kernel_bundle<bundle_state::object>
-compile(const kernel_bundle<bundle_state::input>& inputBundle,            // (1)
-        const std::vector<device>& devs, PropertyOrList props = {});
+compile(const kernel_bundle<bundle_state::input>& inputBundle,
+        const std::vector<device>& devs, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>                               (2)
 kernel_bundle<bundle_state::object>
-compile(const kernel_bundle<bundle_state::input>& inputBundle,            // (2)
-        PropertyOrList props = {});
+compile(const kernel_bundle<bundle_state::input>& inputBundle,
+        PropertyOrList props);
 
 } // namespace sycl
 ----
 
 _Constraints:_ For both overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::kernel_bundle>#
-  is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::kernel_bundle>#
-  is [code]#true#.
+* [api]#khr::is_property_for_v<PropertyOrList,
+  khr::property::tag::kernel_bundle># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::kernel_bundle># is [code]#true#.
 
 _Effects (1)-(2):_ The same effect as the corresponding [code]#compile# overload
-from the <<core-spec>> except that the properties are specified by [code]#props#.
+from the <<core-spec>> except that the properties are specified by
+[code]#props#.
 
 [[sec:khr-properties-kernel-bundle-link]]
 === New link function overloads
@@ -2046,38 +2317,39 @@ This extension adds the following new overloads of the [code]#link# function.
 ----
 namespace sycl {
 
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>                                           (1)
 kernel_bundle<bundle_state::executable>
-link(const std::vector<kernel_bundle<bundle_state::object>>& objectBundles, // (1)
-     const std::vector<device>& devs, PropertyOrList props = {});
+link(const std::vector<kernel_bundle<bundle_state::object>>& objectBundles,
+     const std::vector<device>& devs, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>                                           (2)
 kernel_bundle<bundle_state::executable>
-link(const kernel_bundle<bundle_state::object>& objectBundle,             // (2)
-     const std::vector<device>& devs, PropertyOrList props = {});
+link(const kernel_bundle<bundle_state::object>& objectBundle,
+     const std::vector<device>& devs, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>                                           (3)
 kernel_bundle<bundle_state::executable>
-link(const std::vector<kernel_bundle<bundle_state::object>>& objectBundles, // (3)
-     PropertyOrList props = {});
+link(const std::vector<kernel_bundle<bundle_state::object>>& objectBundles,
+     PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>                                           (4)
 kernel_bundle<bundle_state::executable>
-link(const kernel_bundle<bundle_state::object>& objectBundle,             // (4)
-     PropertyOrList props = {});
+link(const kernel_bundle<bundle_state::object>& objectBundle,
+     PropertyOrList props);
 
 } // namespace sycl
 ----
 
 _Constraints:_ For all overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::kernel_bundle>#
-  is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::kernel_bundle>#
-  is [code]#true#.
+* [api]#khr::is_property_for_v<PropertyOrList,
+  khr::property::tag::kernel_bundle># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::kernel_bundle># is [code]#true#.
 
 _Effects (1)-(4):_ The same effect as the corresponding [code]#link# overload
-from the <<core-spec>> except that the properties are specified by [code]#props#.
+from the <<core-spec>> except that the properties are specified by
+[code]#props#.
 
 [[sec:khr-properties-kernel-bundle-build]]
 === New build function overloads
@@ -2090,28 +2362,29 @@ This extension adds the following new overloads of the [code]#build# function.
 ----
 namespace sycl {
 
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>                             (1)
 kernel_bundle<bundle_state::executable>
-build(const kernel_bundle<bundle_state::input>& inputBundle,              // (1)
-      const std::vector<device>& devs, PropertyOrList props = {});
+build(const kernel_bundle<bundle_state::input>& inputBundle,
+      const std::vector<device>& devs, PropertyOrList props);
 
-template <typename PropertyOrList = khr::empty_properties_t>
+template <typename PropertyOrList>                             (2)
 kernel_bundle<bundle_state::executable>
-build(const kernel_bundle<bundle_state::input>& inputBundle,              // (2)
-      PropertyOrList props = {});
+build(const kernel_bundle<bundle_state::input>& inputBundle,
+      PropertyOrList props);
 
 } // namespace sycl
 ----
 
 _Constraints:_ For both overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::kernel_bundle>#
-  is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::kernel_bundle>#
-  is [code]#true#.
+* [api]#khr::is_property_for_v<PropertyOrList,
+  khr::property::tag::kernel_bundle># is [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList,
+  khr::property::tag::kernel_bundle># is [code]#true#.
 
 _Effects (1)-(2):_ The same effect as the corresponding [code]#build# overload
-from the <<core-spec>> except that the properties are specified by [code]#props#.
+from the <<core-spec>> except that the properties are specified by
+[code]#props#.
 
 [[sec:khr-properties-kernel-bundle-properties]]
 === New kernel bundle properties
@@ -2119,8 +2392,8 @@ from the <<core-spec>> except that the properties are specified by [code]#props#
 This extension defines no kernel bundle property.
 The <<core-spec>> states that [code]#compile#, [code]#link#, and [code]#build#
 accept a [code]#property_list# but does not itself define any such property; the
-overloads above are added so that a future property (defined by an extension) can
-be passed through the new style [code]#properties# mechanism.
+overloads above are added so that a future property (defined by an extension)
+can be passed through the new style [code]#properties# mechanism.
 
 [[sec:khr-properties-stream-additions]]
 == Additions to the stream class
@@ -2139,9 +2412,9 @@ this extension.
 namespace sycl {
 
 class stream {
-  template <typename PropertyOrList = khr::empty_properties_t>
+  template <typename PropertyOrList>
   stream(std::size_t totalBufferSize, std::size_t workItemBufferSize,
-         handler& cgh, PropertyOrList props = {});
+         handler& cgh, PropertyOrList props);
 
   // ...
 };
@@ -2155,8 +2428,8 @@ _Constraints:_
 * [api]#khr::is_property_list_for_v<PropertyOrList, stream># is [code]#true#.
 
 _Effects:_ The same effect as [code]#stream(totalBufferSize, workItemBufferSize,
-cgh, propList)# from the <<core-spec>> except that the properties are specified by
-[code]#props#.
+cgh, propList)# from the <<core-spec>> except that the properties are specified
+by [code]#props#.
 
 [[sec:khr-properties-stream-properties]]
 === New stream properties
@@ -2334,18 +2607,6 @@ else {
 }
 ----
 
-[[sec:khr-properties-limitations]]
-== Limitations
-
-This extension does not define [code]#operator==# or [code]#operator!=# for the
-[code]#properties# class, and a [code]#properties# list does not follow the
-common reference semantics or the common by-value semantics defined by the
-<<core-spec>>.
-Two [code]#properties# lists constructed from the same set of properties may
-have different types when the properties are specified in a different order.
-Applications can query a [code]#properties# list with [code]#has_property# and
-[code]#get_property# (for example, by using [code]#decltype#).
-
 [[sec:khr-properties-issues]]
 == Issues
 
@@ -2360,22 +2621,12 @@ Applications can query a [code]#properties# list with [code]#has_property# and
   small relative to the surface they introduce, so we should decide whether to
   keep them or omit the kernel bundle additions until an actual property exists.
 
-* For the USM allocation entry points, is a single tag type
-  [code]#khr::property::tag::usm_allocation# the right way to express property
-  applicability, or should the [code]#usm_allocator# class (which is a real
-  class) be used directly as the [code]#Class# operand, with the tag reserved for
-  the free allocation functions only?
-  This extension currently keys both the [code]#usm_allocator# constructors and
-  the free allocation functions on the single
-  [code]#property::tag::usm_allocation# tag, on the assumption that a USM
-  property would apply to the whole allocation domain.
-
 * Do we want to extend the accessor classes with new-style property support at
   all?
   The [code]#accessor#, [code]#host_accessor#, [code]#unsampled_image_accessor#,
   and [code]#host_unsampled_image_accessor# classes each take a
-  [code]#property_list# parameter on their constructors in the <<core-spec>>, but
-  the only property presently usable with an accessor is [code]#no_init#.
+  [code]#property_list# parameter on their constructors in the <<core-spec>>,
+  but the only property presently usable with an accessor is [code]#no_init#.
   Adding a [code]#PropertyOrList# overload for every accessor constructor
   (placeholder vs. bound, the deduction tags, ranged vs. non-ranged, the various
   access targets) would add substantial API surface for a single property, so
@@ -2403,8 +2654,7 @@ Applications can query a [code]#properties# list with [code]#has_property# and
   image or buffer.
 
 * This extension declares the namespace [code]#sycl::khr::property#, which has
-  the same name as the [code]#sycl::property# namespace from the
-  <<core-spec>>.
+  the same name as the [code]#sycl::property# namespace from the <<core-spec>>.
   A translation unit containing both [code]#using namespace sycl;# and
   [code]#using namespace sycl::khr;# therefore cannot name either namespace
   unqualified, because the name [code]#property# is found in both.
@@ -2413,9 +2663,9 @@ Applications can query a [code]#properties# list with [code]#has_property# and
   unqualified.
   The same pattern already exists in other Khronos extensions, for example
   [code]#khr::info# in [code]#sycl_khr_max_work_group_queries# and
-  [code]#khr::sub_group# in [code]#sycl_khr_group_interface#, and it is also used
-  deliberately in the {cpp} standard library, where [code]#std::ranges::find# and
-  [code]#std::find# collide in the same way.
+  [code]#khr::sub_group# in [code]#sycl_khr_group_interface#, and it is also
+  used deliberately in the {cpp} standard library, where
+  [code]#std::ranges::find# and [code]#std::find# collide in the same way.
   This shadowing is intentional because [code]#khr::property# is a replacement
   for the same concept as [code]#sycl::property#, so an application is expected
   to choose one or the other rather than to use both.
