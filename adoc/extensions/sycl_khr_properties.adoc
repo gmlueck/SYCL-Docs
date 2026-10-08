@@ -2088,9 +2088,6 @@ The [code]#reduction# interface is not a class, so this extension defines an
 empty tag type [code]#khr::property::tag::reduction# to serve as the
 [code]#Class# parameter of the [api]#khr::is_property_for# trait for properties
 that can be used with the [code]#reduction# interface.
-The tag is declared in the nested namespace [code]#sycl::khr::property::tag# so
-that its name does not shadow the [code]#reduction# functions in namespace
-[code]#sycl#.
 
 '''
 
@@ -2251,14 +2248,9 @@ The following traits inherit from [code]#std::true#:
 This extension adds new property-accepting overloads to the free functions
 [code]#compile#, [code]#link#, and [code]#build#.
 
-These are free functions, not classes, and [code]#kernel_bundle# is a class
-template rather than a class, so this extension defines an empty tag type
-[code]#khr::property::tag::kernel_bundle# to serve as the [code]#Class#
-parameter of the [api]#khr::is_property_for# trait for properties that can be
-used with these functions.
-The tag is declared in the nested namespace [code]#sycl::khr::property::tag# so
-that its name does not shadow the [code]#kernel_bundle# class template in
-namespace [code]#sycl#.
+This extension adds the following property tag types, which are used to
+classify properties that can be used with the [code]#compile#, [code]#link#, and
+[code]#build# functions.
 
 '''
 
@@ -2266,7 +2258,9 @@ namespace [code]#sycl#.
 ----
 namespace sycl::khr::property::tag {
 
-struct kernel_bundle; // tag type, never defined
+struct compile; // tag type, never defined
+struct link;    // tag type, never defined
+struct build;   // tag type, never defined
 
 } // namespace sycl::khr::property::tag
 ----
@@ -2298,9 +2292,9 @@ compile(const kernel_bundle<bundle_state::input>& inputBundle,
 _Constraints:_ For both overloads, either
 
 * [api]#khr::is_property_for_v<PropertyOrList,
-  khr::property::tag::kernel_bundle># is [code]#true#, or
+  khr::property::tag::compile># is [code]#true#, or
 * [api]#khr::is_property_list_for_v<PropertyOrList,
-  khr::property::tag::kernel_bundle># is [code]#true#.
+  khr::property::tag::compile># is [code]#true#.
 
 _Effects (1)-(2):_ The same effect as the corresponding [code]#compile# overload
 from the <<core-spec>> except that the properties are specified by
@@ -2343,9 +2337,9 @@ link(const kernel_bundle<bundle_state::object>& objectBundle,
 _Constraints:_ For all overloads, either
 
 * [api]#khr::is_property_for_v<PropertyOrList,
-  khr::property::tag::kernel_bundle># is [code]#true#, or
+  khr::property::tag::link># is [code]#true#, or
 * [api]#khr::is_property_list_for_v<PropertyOrList,
-  khr::property::tag::kernel_bundle># is [code]#true#.
+  khr::property::tag::link># is [code]#true#.
 
 _Effects (1)-(4):_ The same effect as the corresponding [code]#link# overload
 from the <<core-spec>> except that the properties are specified by
@@ -2378,9 +2372,9 @@ build(const kernel_bundle<bundle_state::input>& inputBundle,
 _Constraints:_ For both overloads, either
 
 * [api]#khr::is_property_for_v<PropertyOrList,
-  khr::property::tag::kernel_bundle># is [code]#true#, or
+  khr::property::tag::build># is [code]#true#, or
 * [api]#khr::is_property_list_for_v<PropertyOrList,
-  khr::property::tag::kernel_bundle># is [code]#true#.
+  khr::property::tag::build># is [code]#true#.
 
 _Effects (1)-(2):_ The same effect as the corresponding [code]#build# overload
 from the <<core-spec>> except that the properties are specified by
@@ -2652,27 +2646,3 @@ else {
   member functions should be deprecated in favor of the pattern where the
   application constructs an [code]#accessor# or [code]#host_accessor# from the
   image or buffer.
-
-* This extension declares the namespace [code]#sycl::khr::property#, which has
-  the same name as the [code]#sycl::property# namespace from the <<core-spec>>.
-  A translation unit containing both [code]#using namespace sycl;# and
-  [code]#using namespace sycl::khr;# therefore cannot name either namespace
-  unqualified, because the name [code]#property# is found in both.
-  This also affects the core properties, so an application that adopts this
-  extension can no longer refer to [code]#property::queue::in_order# and friends
-  unqualified.
-  The same pattern already exists in other Khronos extensions, for example
-  [code]#khr::info# in [code]#sycl_khr_max_work_group_queries# and
-  [code]#khr::sub_group# in [code]#sycl_khr_group_interface#, and it is also
-  used deliberately in the {cpp} standard library, where
-  [code]#std::ranges::find# and [code]#std::find# collide in the same way.
-  This shadowing is intentional because [code]#khr::property# is a replacement
-  for the same concept as [code]#sycl::property#, so an application is expected
-  to choose one or the other rather than to use both.
-  By contrast, names that refer to unrelated entities, such as the tag types,
-  are placed in [code]#sycl::khr::property::tag# so that they do not shadow
-  names in namespace [code]#sycl#.
-  Should we state this rule for names under [code]#sycl::khr# somewhere
-  normative?
-  The <<core-spec>> currently says nothing about how Khronos extensions should
-  name entities within that namespace.
