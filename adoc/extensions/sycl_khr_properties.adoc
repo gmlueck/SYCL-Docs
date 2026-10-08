@@ -2248,8 +2248,8 @@ The following traits inherit from [code]#std::true#:
 This extension adds new property-accepting overloads to the free functions
 [code]#compile#, [code]#link#, and [code]#build#.
 
-This extension adds the following property tag types, which are used to
-classify properties that can be used with the [code]#compile#, [code]#link#, and
+This extension adds the following property tag types, which are used to classify
+properties that can be used with the [code]#compile#, [code]#link#, and
 [code]#build# functions.
 
 '''
@@ -2291,8 +2291,8 @@ compile(const kernel_bundle<bundle_state::input>& inputBundle,
 
 _Constraints:_ For both overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList,
-  khr::property::tag::compile># is [code]#true#, or
+* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::compile># is
+  [code]#true#, or
 * [api]#khr::is_property_list_for_v<PropertyOrList,
   khr::property::tag::compile># is [code]#true#.
 
@@ -2336,10 +2336,10 @@ link(const kernel_bundle<bundle_state::object>& objectBundle,
 
 _Constraints:_ For all overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList,
-  khr::property::tag::link># is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList,
-  khr::property::tag::link># is [code]#true#.
+* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::link># is
+  [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::link>#
+  is [code]#true#.
 
 _Effects (1)-(4):_ The same effect as the corresponding [code]#link# overload
 from the <<core-spec>> except that the properties are specified by
@@ -2371,10 +2371,10 @@ build(const kernel_bundle<bundle_state::input>& inputBundle,
 
 _Constraints:_ For both overloads, either
 
-* [api]#khr::is_property_for_v<PropertyOrList,
-  khr::property::tag::build># is [code]#true#, or
-* [api]#khr::is_property_list_for_v<PropertyOrList,
-  khr::property::tag::build># is [code]#true#.
+* [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::build># is
+  [code]#true#, or
+* [api]#khr::is_property_list_for_v<PropertyOrList, khr::property::tag::build>#
+  is [code]#true#.
 
 _Effects (1)-(2):_ The same effect as the corresponding [code]#build# overload
 from the <<core-spec>> except that the properties are specified by
