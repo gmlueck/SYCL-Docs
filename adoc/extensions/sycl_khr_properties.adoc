@@ -1381,10 +1381,6 @@ struct reduction; // tag type, never defined
 ----
 namespace sycl {
 
-template <typename BufferT, typename BinaryOperation, typename PropertyOrList>
-__unspecified__ reduction(BufferT vars, handler& cgh, BinaryOperation combiner,
-                          PropertyOrList props);
-
 template <typename T, typename BinaryOperation, typename PropertyOrList>
 __unspecified__ reduction(T* var, BinaryOperation combiner,
                           PropertyOrList props);
@@ -1393,11 +1389,6 @@ template <typename T, typename Extent, typename BinaryOperation,
           typename PropertyOrList>
 __unspecified__ reduction(span<T, Extent> vars, BinaryOperation combiner,
                           PropertyOrList props);
-
-template <typename BufferT, typename BinaryOperation, typename PropertyOrList>
-__unspecified__ reduction(BufferT vars, handler& cgh,
-                          const BufferT::value_type& identity,
-                          BinaryOperation combiner, PropertyOrList props);
 
 template <typename T, typename BinaryOperation, typename PropertyOrList>
 __unspecified__ reduction(T* var, const T& identity, BinaryOperation combiner,
@@ -1416,21 +1407,17 @@ __unspecified__ reduction(span<T, Extent> vars, const T& identity,
 .[apititle]#Reduction without an identity value#
 [source,role=synopsis,id=api:khr-properties-reduction-no-identity]
 ----
-template <typename BufferT, typename BinaryOperation, typename PropertyOrList>   (1)
-__unspecified__ reduction(BufferT vars, handler& cgh, BinaryOperation combiner,
-                          PropertyOrList props);
-
-template <typename T, typename BinaryOperation, typename PropertyOrList>         (2)
+template <typename T, typename BinaryOperation, typename PropertyOrList>         (1)
 __unspecified__ reduction(T* var, BinaryOperation combiner,
                           PropertyOrList props);
 
-template <typename T, typename Extent, typename BinaryOperation,                 (3)
+template <typename T, typename Extent, typename BinaryOperation,                 (2)
           typename PropertyOrList>
 __unspecified__ reduction(span<T, Extent> vars, BinaryOperation combiner,
                           PropertyOrList props);
 ----
 
-_Constraints:_ Overload (3) is available only when [code]#Extent !=
+_Constraints:_ Overload (2) is available only when [code]#Extent !=
 sycl::dynamic_extent#, and for all overloads either
 
 * [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::reduction>#
@@ -1438,7 +1425,7 @@ sycl::dynamic_extent#, and for all overloads either
 * [api]#khr::is_property_list_for_v<PropertyOrList,
   khr::property::tag::reduction># is [code]#true#.
 
-_Effects (1)-(3):_ The same effect as the corresponding [code]#reduction#
+_Effects (1)-(2):_ The same effect as the corresponding [code]#reduction#
 overload without an identity value from the <<core-spec>> except that the
 properties are specified by [code]#props#.
 
@@ -1447,22 +1434,17 @@ properties are specified by [code]#props#.
 .[apititle]#Reduction with an identity value#
 [source,role=synopsis,id=api:khr-properties-reduction-identity]
 ----
-template <typename BufferT, typename BinaryOperation, typename PropertyOrList>  (1)
-__unspecified__ reduction(BufferT vars, handler& cgh,
-                          const BufferT::value_type& identity,
-                          BinaryOperation combiner, PropertyOrList props);
-
-template <typename T, typename BinaryOperation, typename PropertyOrList>        (2)
+template <typename T, typename BinaryOperation, typename PropertyOrList>        (1)
 __unspecified__ reduction(T* var, const T& identity, BinaryOperation combiner,
                           PropertyOrList props);
 
-template <typename T, typename Extent, typename BinaryOperation,                (3)
+template <typename T, typename Extent, typename BinaryOperation,                (2)
           typename PropertyOrList>
 __unspecified__ reduction(span<T, Extent> vars, const T& identity,
                           BinaryOperation combiner, PropertyOrList props);
 ----
 
-_Constraints:_ Overload (3) is available only when [code]#Extent !=
+_Constraints:_ Overload (2) is available only when [code]#Extent !=
 sycl::dynamic_extent#, and for all overloads either
 
 * [api]#khr::is_property_for_v<PropertyOrList, khr::property::tag::reduction>#
@@ -1470,7 +1452,7 @@ sycl::dynamic_extent#, and for all overloads either
 * [api]#khr::is_property_list_for_v<PropertyOrList,
   khr::property::tag::reduction># is [code]#true#.
 
-_Effects (1)-(3):_ The same effect as the corresponding [code]#reduction#
+_Effects (1)-(2):_ The same effect as the corresponding [code]#reduction#
 overload with an identity value from the <<core-spec>> except that the
 properties are specified by [code]#props#.
 
