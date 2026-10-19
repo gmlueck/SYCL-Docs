@@ -26,9 +26,6 @@ header file.
 If the implementation also implements the [code]#sycl_khr_split_headers#
 extension, then the APIs defined in this extension are additionally provided by
 the header files listed in <<table.khr-properties-headers>>.
-Each header file in <<table.khr-properties-headers>> other than
-[code]#<sycl/khr/properties.hpp># also includes
-[code]#<sycl/khr/properties.hpp>#.
 
 [[table.khr-properties-headers]]
 .Header files that provide the APIs of this extension
