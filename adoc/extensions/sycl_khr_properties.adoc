@@ -25,9 +25,7 @@ header file.
 
 If the implementation also implements the [code]#sycl_khr_split_headers#
 extension, then the APIs defined in this extension are additionally provided by
-the header files listed in <<table.khr-properties-headers>>, and the feature
-test macro is additionally provided by
-[code]#<sycl/khr/split_headers/version.hpp>#.
+the header files listed in <<table.khr-properties-headers>>.
 Each header file in <<table.khr-properties-headers>> other than
 [code]#<sycl/khr/properties.hpp># also includes
 [code]#<sycl/khr/properties.hpp>#.
@@ -38,6 +36,10 @@ Each header file in <<table.khr-properties-headers>> other than
 |====
 |Header
 |APIs
+
+|[code]#<sycl/khr/split_headers/version.hpp>#
+|The [code]#SYCL_KHR_PROPERTIES# feature test macro from
+<<sec:khr-properties-feature-test>>.
 
 |[code]#<sycl/khr/properties.hpp>#
 |The [code]#khr::properties# class and [code]#khr::empty_properties_t# from
