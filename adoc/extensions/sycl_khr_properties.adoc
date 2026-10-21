@@ -177,7 +177,7 @@ namespace sycl::khr::property {
 // Property defined by the implementation.
 template<int Value1>
 struct prop3 {
-  constexpr prop1(int v2) : value2(v2) {}
+  constexpr prop3(int v2) : value2(v2) {}
   static constexpr int value1 = Value1;
   int value2;
 };
