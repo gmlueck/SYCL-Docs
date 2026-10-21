@@ -1446,7 +1446,7 @@ template <typename T, typename BinaryOperation, typename PropertyOrList>   (1)
 __unspecified__ reduction(T* var, BinaryOperation combiner,
                           PropertyOrList props);
 
-template <typename T, typename Extent, typename BinaryOperation,           (2)
+template <typename T, std::size_t Extent, typename BinaryOperation,        (2)
           typename PropertyOrList>
 __unspecified__ reduction(span<T, Extent> vars, BinaryOperation combiner,
                           PropertyOrList props);
@@ -1483,7 +1483,7 @@ template <typename T, typename BinaryOperation, typename PropertyOrList>        
 __unspecified__ reduction(T* var, const T& identity, BinaryOperation combiner,
                           PropertyOrList props);
 
-template <typename T, typename Extent, typename BinaryOperation,                (2)
+template <typename T, std::size_t Extent, typename BinaryOperation,             (2)
           typename PropertyOrList>
 __unspecified__ reduction(span<T, Extent> vars, const T& identity,
                           BinaryOperation combiner, PropertyOrList props);
