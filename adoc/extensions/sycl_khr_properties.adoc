@@ -1016,7 +1016,7 @@ When a queue is constructed with this property and the [code]#value# is
 If the [code]#value# is [code]#false#, this property has no effect on the
 constructed queue.
 
-The following traits inherit from [code]#std::true#:
+The following traits inherit from [code]#std::true_type#:
 
 * [code]#khr::is_property<khr::property::enable_profiling>#
 * [code]#khr::is_property_key<khr::property::key::enable_profiling>#
@@ -1050,7 +1050,7 @@ When a queue is constructed with this property and the [code]#value# is
 If the [code]#value# is [code]#false#, this property has no effect on the
 constructed queue.
 
-The following traits inherit from [code]#std::true#:
+The following traits inherit from [code]#std::true_type#:
 
 * [code]#khr::is_property<khr::property::in_order>#
 * [code]#khr::is_property_key<khr::property::key::in_order>#
@@ -1540,7 +1540,7 @@ When a reduction is created with this property and the [code]#value# is
 If the [code]#value# is [code]#false#, this property has no effect on the
 reduction.
 
-The following traits inherit from [code]#std::true#:
+The following traits inherit from [code]#std::true_type#:
 
 * [code]#khr::is_property<khr::property::initialize_to_identity>#
 * [code]#khr::is_property_key<khr::property::key::initialize_to_identity>#
