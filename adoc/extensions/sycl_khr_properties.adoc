@@ -1883,6 +1883,8 @@ sycl::khr::properties props{
 If we did not use this pattern, an application would have to define two
 different [code]#props# variables like this because the type of [code]#props# is
 different depending on whether it contains the [code]#enable_thing1# property.
+In this example, [code]#enable_thing1# and [code]#enable_thing2# are instead
+defined as presence-only properties with no boolean value.
 
 [source,,linenums]
 ----
