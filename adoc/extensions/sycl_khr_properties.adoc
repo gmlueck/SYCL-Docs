@@ -269,7 +269,7 @@ class properties {
   static constexpr auto get_property();
 
   template <typename PropertyKey>
-  constexpr auto get_property();
+  constexpr auto get_property() const;
 };
 
 using empty_properties_t = decltype(properties{});
@@ -328,7 +328,7 @@ template <typename PropertyKey>         (1)
 static constexpr auto get_property();
 
 template <typename PropertyKey>         (2)
-constexpr auto get_property();
+constexpr auto get_property() const;
 ----
 
 _Constraints_ (1):
