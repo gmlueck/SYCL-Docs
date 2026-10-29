@@ -4,6 +4,14 @@
 module Rouge
   module Lexers
     load_lexer 'cpp.rb'
+    # The line above seems to work with Rouge version 4.7.0, which is the
+    # version in our docker container.  However, it causes an error with
+    # Rouge version 5.1.0.  AI suggests changing that line to the one below,
+    # which does seem to avoid the error.  However, I don't know what either of
+    # these lines are doing.  The build works fine if you simply remove this
+    # line, and there is no effect on the generated HTML.
+    #
+    # lexer = Rouge::Lexer.find('cpp')
 
     class Sycl < Cpp
       title "SYCL"
